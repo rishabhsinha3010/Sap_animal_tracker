@@ -3,13 +3,15 @@ namespace AnimalAdoption.common;
 // Predefined aspect from cds : Aspect: a reusable bundle of fields that gets added into an entity.
 using {
     cuid,
-    managed
+    managed // 
 } from '@sap/cds/common';
 
+// As it is predefined by CAP it is filled automatically. We dont have to maintain these fields.
 aspect Base : cuid, managed {}
 
 // Type: a set of allowed values that can be used in an entity.
 // a user-defined data type in computer programming that represents a fixed set of named constants
+//Fixed list of values given by FR document. CAP rejects anything outside the list, and Fiori turns them into dropdowns.
 type Gender            : String(10) enum {
     Male;
     Female;

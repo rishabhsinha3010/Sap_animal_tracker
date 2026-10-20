@@ -4,6 +4,7 @@ namespace AnimalAdoption.db; //namespace created of the project
 
 // ---------------- Shelters ----------------
 entity Shelters : common.Base {
+    // @ Annotations are tags that adds rules or behavior to a filed. 
     shelterName         : String(100) @mandatory;
     shelterCode         : String(20);
     addressLine1        : String(100);
@@ -45,7 +46,6 @@ entity Animals : common.Base {
     healthStatus      : common.HealthStatus      default 'Healthy';
     vaccinationStatus : common.VaccinationStatus default 'Not Vaccinated';
     adoptionStatus    : common.AdoptionStatus    default 'Available';
-    spayedOrNeutered  : Boolean default false;
     adoptionEligible  : Boolean default false;
     adoptionFee       : Decimal(10, 2) @assert.range: [0, 999999];
     photo             : String(500);
