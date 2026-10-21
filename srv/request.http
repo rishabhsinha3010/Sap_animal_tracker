@@ -1,0 +1,23 @@
+// With the REST Client extension, a Send Request link appears above each ### block.
+// To get ### use REST clinet extenssion.
+// YWRtaW46YWRtaW4= is just admin:admin encoded.
+###
+GET http://localhost:4004/admin/Animals
+Authorization: Basic YWRtaW46YWRtaW4=
+
+// request rejected because we are sending in admin route for the user
+###
+GET http://localhost:4004/admin/Animals
+Authorization: Basic dXNlcjp1c2Vy
+
+### Admin reads adoptions (works, empty list)
+GET http://localhost:4004/admin/Adoptions
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Admin tries to create an adoption (should be rejected)
+POST http://localhost:4004/admin/Adoptions
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{ "remarks": "manual attempt" }
+
