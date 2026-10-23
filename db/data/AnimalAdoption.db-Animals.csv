@@ -1,0 +1,4 @@
+ID,animalID,shelter_ID,name,species,breed,gender,age,healthStatus,vaccinationStatus,adoptionStatus,adoptionEligible,adoptionFee
+aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,ANM-0001,11111111-1111-1111-1111-111111111111,Bruno,Dog,Labrador,Male,3,Healthy,Vaccinated,Available,true,1500
+bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb,ANM-0002,11111111-1111-1111-1111-111111111111,Misty,Cat,Persian,Female,2,Healthy,Vaccinated,Available,true,1000
+cccccccc-cccc-cccc-cccc-cccccccccccc,ANM-0003,22222222-2222-2222-2222-222222222222,Rocky,Dog,Beagle,Male,4,Sick,Not Vaccinated,Under Treatment,false,0

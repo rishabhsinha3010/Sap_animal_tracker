@@ -1,11 +1,55 @@
 using { AnimalAdoption.db as db } from '../db/schema';
 
-service UserService @(path: '/user', requires: 'authenticated-user') {
-    entity Shelters as projection on db.Shelters;
-    entity Animals as projection on db.Animals;
-    entity Users as projection on db.Users;
-    entity AdoptionApplications as projection on db.AdoptionApplications;
-    entity Adoptions as projection on db.Adoptions;
+service UserService @(path: '/user', requires: 'authenticated-user') { // as it is authenticated user the admin can also login and see readonly data of the user.
+    // @restrict is the row-level rule
+    // Profile: a user can read only their own
+    // $user gets the users email
+    @restrict: [{ grant: 'READ', to: 'User', where: 'email = $user' }] // gets user email from the user entity
+    entity Users as projection on db.Users {
+        ID, firstName, lastName, email, phoneNumber,
+        address, city, state, postalCode, status
+    };
+
+    // Applications: own only, including reviewer comments
+    @restrict: [{ grant: 'READ', to: 'User', where: 'applicant.email = $user' }] // gets the email from user entity in association to AdoptionApplication
+    entity AdoptionApplications as projection on db.AdoptionApplications {
+        ID, applicationID, animal, applicant, applicationDate, reasonForAdoption,
+        housingType, housingDetails, hasOtherPets, petExperience,
+        status, staffRemarks, rejectionReason
+    };
+
+    // Adoption records: own only
+    @restrict: [{ grant: 'READ', to: 'User', where: 'application.applicant.email = $user' }] // 2 link association here
+    entity Adoptions as projection on db.Adoptions {
+        ID, adoptionID, application, animal, adoptionDate, status, remarks
+    };
+
+    // Animals: read-only, and only the fields an adopter needs
+    @readonly
+    entity Animals as projection on db.Animals {
+        ID, animalID, name, species, breed, gender, age, color,
+        photo, description,
+        healthStatus, vaccinationStatus, adoptionStatus, adoptionFee,
+        shelter
+    };
+
+    // Shelters: read-only, contact details only (no capacity or licence info)
+    @readonly
+    entity Shelters as projection on db.Shelters {
+        ID, shelterName, addressLine1, addressLine2, city, state,
+        postalCode, contactNumber, email, website,
+        operatingTime, closingTime
+    };
+
+    // Health records: read-only summary view
+    @readonly
+    entity HealthRecords as projection on db.HealthRecords {
+        ID, animal, checkupDate, healthStatus, healthSummary,
+        adoptionEligible, nextCheckupDate
+    };
+
+
+    
 }
 
  

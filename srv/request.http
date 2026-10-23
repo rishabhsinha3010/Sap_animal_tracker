@@ -21,3 +21,33 @@ Content-Type: application/json
 
 { "remarks": "manual attempt" }
 
+### User reads animals (works)
+GET http://localhost:4004/user/Animals
+Authorization: Basic dXNlcjp1c2Vy
+
+### User filters animals by species
+GET http://localhost:4004/user/Animals?$filter=species eq 'Dog'
+Authorization: Basic dXNlcjp1c2Vy
+
+### User tries to change an animal (should be rejected)
+PATCH http://localhost:4004/user/Animals(aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa)
+Authorization: Basic dXNlcjp1c2Vy
+Content-Type: application/json
+
+{ "name": "Hacked" }
+
+### Admin tries the user service (expect 403, wrong role)
+GET http://localhost:4004/user/Animals
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### Asha sees her 2 applications
+GET http://localhost:4004/user/AdoptionApplications
+Authorization: Basic asha@example.com user
+
+### Asha sees her profile only
+GET http://localhost:4004/user/Users
+Authorization: Basic asha@example.com user
+
+### Other user sees nothing (empty list)
+GET http://localhost:4004/user/AdoptionApplications
+Authorization: Basic other@example.com user

@@ -2,20 +2,45 @@
   "dependencies": {
     "@cap-js/hana": "^3.1.2",
     "@sap/cds": "^10.1.1",
-    "@sap/xssec": "^4.15.0"
+    "@sap/xssec": "^4.15.0",
+    "npmx": "^0.0.0",
+    "npx": "^10.2.2"
   },
-  
   "cds": {
-  "requires": {
-    "auth": {
-      "kind": "mocked",
-      "users": {
-        "admin": { "password": "admin", "roles": ["Admin"] },
-        "user":  { "password": "user",  "roles": ["User"] }
+    "requires": {
+      "auth": {
+        "kind": "mocked",
+        "users": {
+          "admin": {
+            "password": "admin",
+            "roles": [
+              "Admin"
+            ]
+          },
+          "user": {
+            "password": "user",
+            "roles": [
+              "User"
+            ]
+          },
+          "asha@example.com": {
+            "password": "user",
+            "roles": [
+              "User"
+            ]
+          },
+          "other@example.com": {
+            "password": "user",
+            "roles": [
+              "User"
+            ]
+          }
+        }
       }
     }
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": "^3.1.2",
+    "@sap/cds-dk": "^10.2.0"
   }
 }
-
-}
-
