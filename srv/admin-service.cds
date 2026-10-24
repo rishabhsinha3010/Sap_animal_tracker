@@ -10,7 +10,10 @@ service AdminService @(path : '/admin', requires: 'Admin'){
     entity Animals              as projection on db.Animals;
     entity Shelters             as projection on db.Shelters;
     entity Users                as projection on db.Users;
-    entity HealthRecords        as projection on db.HealthRecords;
+    entity HealthRecords        as projection on db.HealthRecords actions {
+        // Fiori screen #7 "Mark Recovered": sets the record (and the animal) back to Healthy
+        action markRecovered();
+    };
     entity Inspections          as projection on db.Inspections;
     entity AdoptionApplications as projection on db.AdoptionApplications actions{
         // bound actions
@@ -73,6 +76,13 @@ service AdminService @(path : '/admin', requires: 'Admin'){
         count(*) as total : Integer
     } where status != 'Cancelled'
       group by year(adoptionDate), month(adoptionDate);
+
+    // health checkups whose next checkup date has passed (FR-ADM-014)
+    @readonly
+    @cds.redirection.target: false
+    entity OverdueCheckups as projection on db.HealthRecords {
+        ID, animal, checkupDate, nextCheckupDate, healthStatus
+    } where nextCheckupDate < $now;
 
     // shelter occupancy with progress bar value (FR-ADM-026)
     // occupancyPercentage is the calculated field from the Shelters entity

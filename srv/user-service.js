@@ -1,14 +1,18 @@
 // we have decleared all events here along with helper functions
 // this.before(event, entity, fn)
 //CAP gives every entity the standard operations (CRUD) automatically: 'CREATE', 'READ', 'UPDATE'.... (no need to define action)
+// before = runs before CAP saves, on = replaces what CAP does, after = runs after CAP has saved
 const cds = require('@sap/cds');
 
 module.exports = cds.service.impl(async function () {
 
+    // the real tables (not the service projections), so this code can write to fields
+    // that are @readonly for outside callers, like status
     const { Users, Animals, AdoptionApplications, ApplicationHistory } =
         cds.entities('AnimalAdoption.db');
 
     // who is the logged-in person? (matched by email = login name)
+    // used by every handler that needs to know "me"
     async function currentUser(req) {
         const me = await SELECT.one.from(Users).where({ email: req.user.id });
         if (!me) req.reject(403, 'No user profile found for your login. Please register first.');
@@ -25,6 +29,7 @@ module.exports = cds.service.impl(async function () {
     });
 
     // ---------- "delete" my profile = deactivate it FR document----------
+    // (on replaces the normal delete, so the row stays: applications and adoptions point to it, NFR-005)
     this.on('DELETE', 'Users', async (req) => {
         await UPDATE(Users, req.data.ID).with({ status: 'Inactive' });
     });
@@ -47,9 +52,12 @@ module.exports = cds.service.impl(async function () {
     });
 
     // ---------- after it is saved: first history row (after create AdoptionApplication, history is stored)----------
+    // (it runs after the save because only then does the new application have an ID)
+    // (CAP can hand us the saved row inside a list, so we take the ID from either shape)
     this.after('CREATE', 'AdoptionApplications', async (data, req) => {
+        const saved = Array.isArray(data) ? data[0] : data;
         await INSERT.into(ApplicationHistory).entries({
-            application_ID: data.ID,
+            application_ID: saved?.ID ?? req.data.ID,
             newStatus: 'Submitted',
             changedBy: req.user.id
         });
@@ -57,12 +65,14 @@ module.exports = cds.service.impl(async function () {
 
     // ---------- action: withdraw ----------
     this.on('withdraw', 'AdoptionApplications', async (req) => {
+        // the application the button was pressed on (key from the URL)
         const key = req.params[0];
         const ID = key?.ID ?? key;
 
         const me  = await currentUser(req);
         const app = await SELECT.one.from(AdoptionApplications).where({ ID });
         if (!app) return req.reject(404, 'Application not found');
+        // the @restrict rule already blocks other people's applications, this is a second check
         if (app.applicant_ID !== me.ID) return req.reject(403, 'This is not your application');
         if (app.status !== 'Submitted') {
             return req.reject(409, `Cannot withdraw an application that is "${app.status}"`);

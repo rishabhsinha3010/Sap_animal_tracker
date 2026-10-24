@@ -2,10 +2,14 @@
 const cds = require('@sap/cds');
 
 module.exports = cds.service.impl(async function () {
-     console.log('>>> admin-service.js loaded');
     // Taking the name out of schema and destructuring them
     // we are not using the service version of status bz it will block it as it is decleared read only
-    const { AdoptionApplications, ApplicationHistory, Adoptions, Animals, Shelters } = cds.entities('AnimalAdoption.db');
+    const { AdoptionApplications, ApplicationHistory, Adoptions, Animals, Shelters,
+            HealthRecords, Inspections, Users } = cds.entities('AnimalAdoption.db');
+
+    // =====================================================================
+    // HELPERS (small functions used by several handlers below)
+    // =====================================================================
 
     async function changeStatus(req, allowedFrom, newStatus, extra = {}) {
 
@@ -42,15 +46,76 @@ module.exports = cds.service.impl(async function () {
             remarks: extra.staffRemarks || extra.rejectionReason || null
         });
 
+        // gives the application row (as it was before the change) back to the caller
         return app;
     }
+
+    // in an "after" handler CAP gives the saved row, sometimes inside a list ([{ ID: ... }]),
+    // so data.ID can be undefined. This takes the ID either way (and falls back to the request).
+    function savedID(data, req) {
+        const row = Array.isArray(data) ? data[0] : data;
+        return row?.ID ?? req.data?.ID;
+    }
+
+    // next number for a code like ANM-0001: takes the highest existing one and adds 1.
+    // (counting rows would repeat a number after a delete, the highest number never does)
+    async function nextId(table, column, prefix) {
+        const row = await SELECT.one.from(table).columns(`max(${column}) as last`);
+        const lastNo = row?.last ? parseInt(row.last.slice(prefix.length), 10) : 0;
+        return prefix + String(lastNo + 1).padStart(4, '0');
+    }
+
+    // recounts a shelter's occupancy from the animals really in it (FR-ADM-022)
+    // occupancy = animals in the shelter that are not adopted yet
+    // we recount instead of doing +1 / -1, so the number can never drift out of sync
+    async function refreshShelter(shelterID) {
+        if (!shelterID) return;
+        const shelter = await SELECT.one.from(Shelters).where({ ID: shelterID });
+        if (!shelter) return;
+
+        const { count } = await SELECT.one.from(Animals)
+            .columns('count(*) as count')
+            .where('shelter_ID =', shelterID, 'and adoptionStatus !=', 'Adopted');
+
+        const changes = { currentOccupancy: count };
+        // Active <-> Full follows the occupancy (an Inactive shelter stays Inactive)
+        if (shelter.status === 'Active' && count >= shelter.capacity) changes.status = 'Full';
+        if (shelter.status === 'Full'   && count <  shelter.capacity) changes.status = 'Active';
+        await UPDATE(Shelters, shelterID).with(changes);
+    }
+
+    // an animal can only go into a shelter that is open and has room
+    function checkShelterHasRoom(req, shelter) {
+        if (!shelter) return req.reject(404, 'Shelter not found');
+        if (shelter.status === 'Inactive') return req.reject(409, `${shelter.shelterName} is inactive`);
+        if (shelter.currentOccupancy >= shelter.capacity) {
+            return req.reject(409, `${shelter.shelterName} is full`);
+        }
+    }
+
+    // copies the newest health record onto the animal (FR-ADM-012, 013, 016)
+    // "newest" = latest checkup date, so editing an old record does not overwrite newer facts
+    async function syncAnimalHealth(animalID) {
+        const latest = await SELECT.one.from(HealthRecords)
+            .where({ animal_ID: animalID })
+            .orderBy('checkupDate desc', 'createdAt desc');
+        if (!latest) return;
+
+        const changes = { adoptionEligible: latest.adoptionEligible };
+        if (latest.healthStatus)      changes.healthStatus = latest.healthStatus;
+        if (latest.vaccinationStatus) changes.vaccinationStatus = latest.vaccinationStatus;
+        await UPDATE(Animals, animalID).with(changes);
+    }
+
+    // =====================================================================
+    // APPLICATION REVIEW ACTIONS
+    // =====================================================================
 
      // startReview is an event and its a bounded action // AdoptionApplications is a filter 
         // only run this handler when that action belongs to this entity 
         // If another entity had its own startReview action later, this handler wouldn't run for it.
         this.on('startReview', 'AdoptionApplications', async (req) => {
             await changeStatus(req, ['Submitted'], 'Under Review');
-            console.log('startReview called');
         });
 
         // ---------- action: rejectApplication ----------
@@ -66,6 +131,8 @@ module.exports = cds.service.impl(async function () {
         const { remarks } = req.data;
 
         // 1. the animal must still be free
+        // (this check has to run BEFORE the status changes, so we read the application here
+        //  and changeStatus reads it once more)
         const key = req.params[0];
         const ID = key?.ID ?? key;
         const current = await SELECT.one.from(AdoptionApplications).where({ ID });
@@ -77,7 +144,7 @@ module.exports = cds.service.impl(async function () {
         }
 
         // 2. move the application to Approved (also writes the history row)
-        const app = await changeStatus(req, ['Under Review'], 'Approved', { staffRemarks: remarks });
+        await changeStatus(req, ['Under Review'], 'Approved', { staffRemarks: remarks });
 
         // 3. create the adoption record automatically
         const { count } = await SELECT.one.from(Adoptions).columns('count(*) as count'); // counts the existing adoptions
@@ -93,10 +160,135 @@ module.exports = cds.service.impl(async function () {
         // 4. mark the animal as adopted
         await UPDATE(Animals, current.animal_ID).with({ adoptionStatus: 'Adopted' });
 
-        // 5. one animal left the shelter, so occupancy goes down (never below 0)
-        await UPDATE(Shelters)
-            .set('currentOccupancy = currentOccupancy - 1')
-            .where('ID =', animal.shelter_ID, 'and currentOccupancy > 0');
+        // 5. one animal left the shelter, so occupancy goes down
+        // (refreshShelter recounts, so it can never go below 0 and the Full status resets itself)
+        await refreshShelter(animal.shelter_ID);
+    });
+
+    // =====================================================================
+    // ANIMALS (FR-ADM-001, 002, 005, 022)
+    // =====================================================================
+
+    // before a new animal is saved: the shelter must have room, and we generate the animal ID
+    // (animalID is @readonly, so only this code can fill it)
+    this.before('CREATE', 'Animals', async (req) => {
+        const shelter = await SELECT.one.from(Shelters).where({ ID: req.data.shelter_ID });
+        if (req.data.adoptionStatus !== 'Adopted') checkShelterHasRoom(req, shelter);
+        req.data.animalID = await nextId(Animals, 'animalID', 'ANM-');
+    });
+
+    // after it is saved: recount the shelter
+    this.after('CREATE', 'Animals', async (data, req) => {
+        const animal = await SELECT.one.from(Animals).where({ ID: savedID(data, req) });
+        await refreshShelter(animal.shelter_ID);
+    });
+
+    // before an animal is changed: remember where it was, and check the new shelter if it moves
+    this.before('UPDATE', 'Animals', async (req) => {
+        const old = await SELECT.one.from(Animals).where({ ID: req.data.ID });
+        if (!old) return;
+        req._prevShelterID = old.shelter_ID;      // remembered for the "after" handler
+        if (req.data.shelter_ID && req.data.shelter_ID !== old.shelter_ID) {
+            const target = await SELECT.one.from(Shelters).where({ ID: req.data.shelter_ID });
+            checkShelterHasRoom(req, target);
+        }
+    });
+
+    // after it is changed: recount the new shelter, and the old one if the animal moved
+    // (also catches an admin setting the adoption status to Adopted by hand)
+    this.after('UPDATE', 'Animals', async (data, req) => {
+        const animal = await SELECT.one.from(Animals).where({ ID: savedID(data, req) });
+        await refreshShelter(animal.shelter_ID);
+        if (req._prevShelterID && req._prevShelterID !== animal.shelter_ID) {
+            await refreshShelter(req._prevShelterID);
+        }
+    });
+
+    // deleting an animal frees its place in the shelter
+    this.before('DELETE', 'Animals', async (req) => {
+        const animal = await SELECT.one.from(Animals).where({ ID: req.data.ID });
+        req._prevShelterID = animal?.shelter_ID;
+    });
+    this.after('DELETE', 'Animals', async (_, req) => {
+        await refreshShelter(req._prevShelterID);
+    });
+
+    // =====================================================================
+    // HEALTH RECORDS (FR-ADM-012, 013, 016, Fiori screen #7)
+    // =====================================================================
+
+    // after a health record is created or changed, the animal shows the newest health facts
+    this.after(['CREATE', 'UPDATE'], 'HealthRecords', async (data, req) => {
+        const record = await SELECT.one.from(HealthRecords).where({ ID: savedID(data, req) });
+        await syncAnimalHealth(record.animal_ID);
+    });
+
+    // ---------- action: markRecovered ----------
+    this.on('markRecovered', 'HealthRecords', async (req) => {
+        const key = req.params[0];
+        const ID = key?.ID ?? key;
+
+        const record = await SELECT.one.from(HealthRecords).where({ ID });
+        if (!record) return req.reject(404, 'Health record not found');
+
+        await UPDATE(HealthRecords, ID).with({ healthStatus: 'Healthy' });
+        await syncAnimalHealth(record.animal_ID);
+
+        // an animal that was "Under Treatment" and is healthy again can be adopted again
+        const animal = await SELECT.one.from(Animals).where({ ID: record.animal_ID });
+        if (animal.healthStatus === 'Healthy' && animal.adoptionStatus === 'Under Treatment') {
+            await UPDATE(Animals, animal.ID).with({ adoptionStatus: 'Available' });
+        }
+    });
+
+    // =====================================================================
+    // INSPECTIONS (FR-ADM-019)
+    // =====================================================================
+
+    // a Validated inspection completes the adoption (only if it is still Active)
+    // completedBy is the admin who validated it
+    this.after(['CREATE', 'UPDATE'], 'Inspections', async (data, req) => {
+        const inspection = await SELECT.one.from(Inspections).where({ ID: savedID(data, req) });
+        if (inspection?.result === 'Validated') {
+            await UPDATE(Adoptions)
+                .with({ status: 'Completed', completedBy: req.user.id })
+                .where({ ID: inspection.adoption_ID, status: 'Active' });
+        }
+    });
+
+    // =====================================================================
+    // DOCUMENTS (NFR-007, NFR-011)
+    // =====================================================================
+
+    // PDF, JPEG, JPG and PNG only, up to 10 MB per file (a .jpg file has the type image/jpeg)
+    const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
+    const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+    this.before(['CREATE', 'UPDATE'],
+        ['ApplicationDocuments', 'AdoptionDocuments', 'HealthDocuments', 'InspectionDocuments'],
+        (req) => {
+            const { mediaType, fileSize } = req.data;
+            if (mediaType && !ALLOWED_TYPES.includes(mediaType)) {
+                return req.reject(400, 'Only PDF, JPEG, JPG and PNG files are allowed');
+            }
+            if (fileSize && fileSize > MAX_FILE_SIZE) {
+                return req.reject(400, 'The file is larger than 10 MB');
+            }
+        });
+
+    // =====================================================================
+    // DATA RETENTION (NFR-005: applications and adoption records are kept 7 years)
+    // =====================================================================
+
+    // applications can never be deleted (Adoptions are already read-only)
+    this.before('DELETE', 'AdoptionApplications', (req) => {
+        return req.reject(405, 'Adoption applications must be kept for 7 years and cannot be deleted');
+    });
+
+    // deleting a user only deactivates the profile, like on the user side,
+    // because that user's applications and adoptions point to the row
+    this.on('DELETE', 'Users', async (req) => {
+        await UPDATE(Users, req.data.ID).with({ status: 'Inactive' });
     });
 
 });
