@@ -5,6 +5,8 @@ service UserService @(
     path    : '/user',
     requires: 'authenticated-user'
 ) { // as it is authenticated user the admin can also login and see readonly data of the user.
+    // (the personal data below is still protected by the row-level rules, so only the
+    //  public read-only entities at the bottom are visible to an admin login)
     // @restrict is the row-level rule
     // Profile: a user can read only their own
     // $user gets the users email
@@ -15,13 +17,13 @@ service UserService @(
             where: 'email = $user'
         },
         {
-            grant: 'CREATE',
+            grant: 'CREATE', // registration: no "where" because the row does not exist yet
             to   : 'User'
         },
         {
             grant: [
                 'UPDATE',
-                'DELETE'
+                'DELETE' // delete is changed to "deactivate" in user-service.js
             ],
             to   : 'User',
             where: 'email = $user'
@@ -29,6 +31,7 @@ service UserService @(
     ] // gets user email from the user entity
     entity Users                as
         projection on db.Users {
+            // role is not listed, so a user can never make themselves an Admin
             ID,
             firstName,
             lastName,
@@ -41,13 +44,8 @@ service UserService @(
             status
         };
 
-// annotate is attach tag to existing thing 
-    annotate UserService.Users with {
-    email  @readonly;
-    status @readonly;
-};
-
     // Applications: own only, including reviewer comments // gets the email from user entity in association to AdoptionApplication
+    // (the where path follows the link: application -> applicant -> email)
     @restrict: [
         {
             grant: 'READ',
@@ -59,6 +57,8 @@ service UserService @(
             to   : 'User'
         },
         {
+            // edit only before review: once the status changes, this condition fails
+            // ('' inside the text means one single quote)
             grant: 'UPDATE',
             to   : 'User',
             where: 'applicant.email = $user and status = ''Submitted'''
@@ -71,6 +71,7 @@ service UserService @(
     ]
     entity AdoptionApplications as
         projection on db.AdoptionApplications {
+            // applicant must stay in this list: the where rules above follow it
             ID,
             applicationID,
             animal,
@@ -88,15 +89,6 @@ service UserService @(
         actions {
             action withdraw();
         };
-
-    annotate UserService.AdoptionApplications with {
-    // the handler fills the applicant from the login, so the client must not be required to send it
-    applicant       @mandatory: false;
-    applicationID   @readonly;
-    status          @readonly;
-    staffRemarks    @readonly;
-    rejectionReason @readonly;
-};
 
     // Adoption records: own only
     @restrict: [{
@@ -116,6 +108,7 @@ service UserService @(
         };
 
     // Animals: read-only, and only the fields an adopter needs
+    // (fields like spayedOrNeutered and adoptionEligible are left out on purpose)
     @readonly
     entity Animals              as
         projection on db.Animals {
@@ -155,6 +148,7 @@ service UserService @(
         };
 
     // Health records: read-only summary view
+    // (diagnosis, treatment and medication are internal, so they are not listed)
     @readonly
     entity HealthRecords        as
         projection on db.HealthRecords {
@@ -168,12 +162,14 @@ service UserService @(
         };
 
         // Status history of my applications
+        // (changedBy is left out: the adopter only needs status, remarks and time)
     @restrict: [{ grant: 'READ', to: 'User', where: 'application.applicant.email = $user' }]
     entity ApplicationHistory as projection on db.ApplicationHistory {
         ID, application, oldStatus, newStatus, changedAt, remarks
     };
 
     // Inspections done on my adoptions
+    // (4 links: inspection -> adoption -> application -> applicant -> email)
     @restrict: [{ grant: 'READ', to: 'User', where: 'adoption.application.applicant.email = $user' }]
     entity Inspections as projection on db.Inspections {
         ID, adoption, inspectionDate, inspectionType, result, remarks
@@ -186,10 +182,26 @@ service UserService @(
     };
 
     // Health certificates only (not internal medical reports)
+    // filtered by document type, not by owner
     @restrict: [{ grant: 'READ', to: 'User', where: 'documentType = ''Health Certificate''' }]
     entity HealthDocuments as projection on db.HealthDocuments {
         ID, healthRecord, fileName, mediaType, fileSize, documentType, documentId, url
     };
 
+};
 
+// annotate is attach tag to existing thing 
+// (it goes below the service because the entity must exist first)
+// @readonly on a FIELD means a client cannot write it; our JS code writes to the real tables, so it still can
+annotate UserService.Users with {
+    email  @readonly; // set from the login in user-service.js
+    status @readonly; // Active/Inactive is controlled by the system, not by the user
+};
+
+annotate UserService.AdoptionApplications with {
+    applicant       @mandatory: false; // the handler fills it from the login
+    applicationID   @readonly;
+    status          @readonly;
+    staffRemarks    @readonly;
+    rejectionReason @readonly;
 };

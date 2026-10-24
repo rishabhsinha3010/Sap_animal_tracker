@@ -114,3 +114,7 @@ Content-Type: application/json
 ###
 GET http://localhost:4004/admin/ApplicationHistory
 Authorization: Basic YWRtaW46YWRtaW4=
+
+###
+GET http://localhost:4004/admin/ApplicationsByStatus
+Authorization: Basic YWRtaW46YWRtaW4=
