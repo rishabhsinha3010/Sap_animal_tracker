@@ -2,6 +2,7 @@
 const cds = require('@sap/cds');
 
 module.exports = cds.service.impl(async function () {
+     console.log('>>> admin-service.js loaded');
     // Taking the name out of schema and destructuring them
     // we are not using the service version of status bz it will block it as it is decleared read only
     const { AdoptionApplications, ApplicationHistory, Adoptions, Animals, Shelters } = cds.entities('AnimalAdoption.db');
@@ -41,17 +42,18 @@ module.exports = cds.service.impl(async function () {
             remarks: extra.staffRemarks || extra.rejectionReason || null
         });
 
-        // startReview is an event and its a bounded action // AdoptionApplications is a filter 
+    }
+
+     // startReview is an event and its a bounded action // AdoptionApplications is a filter 
         // only run this handler when that action belongs to this entity 
         // If another entity had its own startReview action later, this handler wouldn't run for it.
         this.on('startReview', 'AdoptionApplications', async (req) => {
             await changeStatus(req, ['Submitted'], 'Under Review');
+            console.log('startReview called');
         });
 
-    }
-
-        // ---------- action: reject ----------
-    this.on('reject', 'AdoptionApplications', async (req) => {
+        // ---------- action: rejectApplication ----------
+    this.on('rejectApplication', 'AdoptionApplications', async (req) => {
         const { reason } = req.data;
         await changeStatus(req, ['Under Review'], 'Rejected', { rejectionReason: reason });
     });

@@ -18,7 +18,7 @@ service AdminService @(path : '/admin', requires: 'Admin'){
         // The remarks are optional, because the admin may not have anything to add.
             action approve(remarks : String(500));
         // @mandatory means the admin can't reject without a reason.
-            action reject(reason : String(500) @mandatory);
+            action rejectApplication(reason : String(500) @mandatory);
     };
 
     // read-only: records are created by the system, never by hand

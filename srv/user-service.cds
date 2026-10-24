@@ -1,4 +1,5 @@
 using {AnimalAdoption.db as db} from '../db/schema';
+// In @restrict, anything not granted is denied, so these are read-only without needing @readonly.
 
 service UserService @(
     path    : '/user',
@@ -7,11 +8,25 @@ service UserService @(
     // @restrict is the row-level rule
     // Profile: a user can read only their own
     // $user gets the users email
-    @restrict: [{
-        grant: 'READ',
-        to   : 'User',
-        where: 'email = $user'
-    }] // gets user email from the user entity
+    @restrict: [
+        {
+            grant: 'READ', // caps bz already defined by CAP
+            to   : 'User',
+            where: 'email = $user'
+        },
+        {
+            grant: 'CREATE',
+            to   : 'User'
+        },
+        {
+            grant: [
+                'UPDATE',
+                'DELETE'
+            ],
+            to   : 'User',
+            where: 'email = $user'
+        }
+    ] // gets user email from the user entity
     entity Users                as
         projection on db.Users {
             ID,
@@ -25,6 +40,12 @@ service UserService @(
             postalCode,
             status
         };
+
+// annotate is attach tag to existing thing 
+    annotate UserService.Users with {
+    email  @readonly;
+    status @readonly;
+};
 
     // Applications: own only, including reviewer comments // gets the email from user entity in association to AdoptionApplication
     @restrict: [
@@ -43,7 +64,7 @@ service UserService @(
             where: 'applicant.email = $user and status = ''Submitted'''
         },
         {
-            grant: 'withdraw',
+            grant: 'withdraw', // custom action
             to   : 'User',
             where: 'applicant.email = $user'
         }
@@ -67,6 +88,13 @@ service UserService @(
         actions {
             action withdraw();
         };
+
+    annotate UserService.AdoptionApplications with {
+    applicationID   @readonly;
+    status          @readonly;
+    staffRemarks    @readonly;
+    rejectionReason @readonly;
+};
 
     // Adoption records: own only
     @restrict: [{
@@ -137,5 +165,29 @@ service UserService @(
             nextCheckupDate
         };
 
+        // Status history of my applications
+    @restrict: [{ grant: 'READ', to: 'User', where: 'application.applicant.email = $user' }]
+    entity ApplicationHistory as projection on db.ApplicationHistory {
+        ID, application, oldStatus, newStatus, changedAt, remarks
+    };
 
-}
+    // Inspections done on my adoptions
+    @restrict: [{ grant: 'READ', to: 'User', where: 'adoption.application.applicant.email = $user' }]
+    entity Inspections as projection on db.Inspections {
+        ID, adoption, inspectionDate, inspectionType, result, remarks
+    };
+
+    // Documents (agreements, certificates, letters) of my adoptions
+    @restrict: [{ grant: 'READ', to: 'User', where: 'adoption.application.applicant.email = $user' }]
+    entity AdoptionDocuments as projection on db.AdoptionDocuments {
+        ID, adoption, fileName, mediaType, fileSize, documentType, documentId, url
+    };
+
+    // Health certificates only (not internal medical reports)
+    @restrict: [{ grant: 'READ', to: 'User', where: 'documentType = ''Health Certificate''' }]
+    entity HealthDocuments as projection on db.HealthDocuments {
+        ID, healthRecord, fileName, mediaType, fileSize, documentType, documentId, url
+    };
+
+
+};

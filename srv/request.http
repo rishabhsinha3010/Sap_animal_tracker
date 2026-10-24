@@ -51,3 +51,66 @@ Authorization: Basic asha@example.com user
 ### Other user sees nothing (empty list)
 GET http://localhost:4004/user/AdoptionApplications
 Authorization: Basic other@example.com user
+
+-----------------------------------------------------------------------------
+
+###
+GET http://localhost:4004/user/Users
+
+### 1. Register: other@example.com has a login but no profile yet
+POST http://localhost:4004/user/Users
+Authorization: Basic other@example.com user
+Content-Type: application/json
+
+{ "firstName": "Priya", "lastName": "Nair", "phoneNumber": "9876543210", "city": "Chennai" }
+
+### 2. Register again (expect 409)
+POST http://localhost:4004/user/Users
+Authorization: Basic other@example.com user
+Content-Type: application/json
+
+{ "firstName": "Priya", "lastName": "Nair" }
+
+### 3. Read my profile
+GET http://localhost:4004/user/Users
+Authorization: Basic other@example.com user
+
+### 4. Bad phone number (expect a validation error, if you added the optional rule)
+PATCH http://localhost:4004/user/Users(<ID from step 3>)
+Authorization: Basic other@example.com user
+Content-Type: application/json
+
+{ "phoneNumber": "abc" }
+
+### 5. Deactivate my profile
+DELETE http://localhost:4004/user/Users(ba0b09e0-b301-4cb7-8f59-bd21ba058357)
+Authorization: Basic other@example.com user
+
+### 6. Try to apply now (expect 403, account not active)
+POST http://localhost:4004/user/AdoptionApplications
+Authorization: Basic other@example.com user
+Content-Type: application/json
+
+{ "animal_ID": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "reasonForAdoption": "test" }
+
+### 7. Admin can see the row, now Inactive
+GET http://localhost:4004/admin/Users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+### A. Start review of application 1
+POST http://localhost:4004/admin/AdoptionApplications(d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1)/AdminService.startReview
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{}
+
+### B. Approve it
+POST http://localhost:4004/admin/AdoptionApplications(d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1)/AdminService.approve
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{ "remarks": "Home check passed" }
+
+###
+GET http://localhost:4004/admin/ApplicationHistory
+Authorization: Basic YWRtaW46YWRtaW4=
