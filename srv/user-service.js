@@ -43,6 +43,7 @@ module.exports = cds.service.impl(async function () {
         req.data.applicationID = 'APP-' + String(count + 1).padStart(4, '0');
         req.data.applicant_ID  = me.ID;          // always the logged-in user
         req.data.status        = 'Submitted';
+        req.data.applicationDate = new Date().toISOString().slice(0, 10);   // Date field, so date only
     });
 
     // ---------- after it is saved: first history row (after create AdoptionApplication, history is stored)----------

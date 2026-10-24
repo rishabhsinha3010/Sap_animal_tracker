@@ -90,6 +90,8 @@ service UserService @(
         };
 
     annotate UserService.AdoptionApplications with {
+    // the handler fills the applicant from the login, so the client must not be required to send it
+    applicant       @mandatory: false;
     applicationID   @readonly;
     status          @readonly;
     staffRemarks    @readonly;

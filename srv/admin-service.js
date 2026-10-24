@@ -42,6 +42,7 @@ module.exports = cds.service.impl(async function () {
             remarks: extra.staffRemarks || extra.rejectionReason || null
         });
 
+        return app;
     }
 
      // startReview is an event and its a bounded action // AdoptionApplications is a filter 
