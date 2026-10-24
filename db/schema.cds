@@ -60,7 +60,7 @@ entity Users : common.Base {
     firstName   : String(100) @mandatory;
     lastName    : String(100) @mandatory;
     email       : String(255) @mandatory @assert.format: '^[^@\s]+@[^@\s]+\.[^@\s]+$';
-    phoneNumber : String(20);
+    phoneNumber : String(20) @assert.format: '^[0-9+\- ]{7,20}$';
     address     : String(255);
     city        : String(100);
     state       : String(100);
