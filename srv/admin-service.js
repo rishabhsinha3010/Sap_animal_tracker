@@ -82,15 +82,15 @@ module.exports = cds.service.impl(async function () {
         const { count } = await SELECT.one.from(Adoptions).columns('count(*) as count'); // counts the existing adoptions
         await INSERT.into(Adoptions).entries({
             adoptionID: 'ADP-' + String(count + 1).padStart(4, '0'), // is the next number // pads with zeros to make ADP-0001
-            application_ID: app.ID,
+            application_ID: current.ID,
             // An association is a link, and a database table can't store a link, only a value. So CAP automatically creates a real column named <association name>_<key name>, which is animal_ + ID = animal_ID
-            animal_ID: app.animal_ID,
+            animal_ID: current.animal_ID,
             adoptionDate: new Date().toISOString().slice(0, 10), // cuts the timestamp down to the date
             status: 'Active'
         });
 
         // 4. mark the animal as adopted
-        await UPDATE(Animals, app.animal_ID).with({ adoptionStatus: 'Adopted' });
+        await UPDATE(Animals, current.animal_ID).with({ adoptionStatus: 'Adopted' });
 
         // 5. one animal left the shelter, so occupancy goes down (never below 0)
         await UPDATE(Shelters)
