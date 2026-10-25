@@ -59,6 +59,8 @@ entity Animals : common.Base {
 entity Users : common.Base {
     firstName   : String(100) @mandatory;
     lastName    : String(100) @mandatory;
+     // calculated when read (not stored): first name + last name, used by the Fiori screens
+    fullName    : String(201) = firstName || ' ' || lastName;
     email       : String(255) @mandatory @assert.format: '^[^@\s]+@[^@\s]+\.[^@\s]+$';
     phoneNumber : String(20) @assert.format: '^[0-9+\- ]{7,20}$';
     address     : String(255);
@@ -75,7 +77,7 @@ entity AdoptionApplications : common.Base {
     applicationID     : String(20) @readonly;
     animal            : Association to Animals @mandatory;   // animal_ID
     applicant         : Association to Users   @mandatory;   // applicant_ID
-    applicationDate   : Date default $now;
+    applicationDate   : Date;  // set by the handler when the application is created
     reasonForAdoption : String(500) @mandatory;
     housingType       : common.HousingType;
     housingDetails    : String(500);
@@ -109,7 +111,7 @@ entity Adoptions : common.Base {
     adoptionID   : String(20) @readonly;
     application  : Association to AdoptionApplications @mandatory;   // application_ID
     animal       : Association to Animals @mandatory;                // animal_ID
-    adoptionDate : Date default $now;
+    adoptionDate : Date; // set by the approve action
     status       : common.AdoptionRecordStatus default 'Active';
     completedBy  : String(100);
     remarks      : String(500);

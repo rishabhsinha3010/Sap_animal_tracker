@@ -1,5 +1,16 @@
 using AdminService as service from '../../srv/admin-service';
 
+annotate service.AdoptionApplications with @(
+    // no Delete button: applications must be kept for 7 years (NFR-005), the server refuses deletes too
+    Capabilities.DeleteRestrictions : { Deletable : false }
+);
+
+// readable names for the filter fields (without these the raw field names show up)
+annotate service.AdoptionApplications with {
+    status          @title : 'Status';
+    applicationDate @title : 'Application Date';
+};
+
 // UI annotations = instructions for Fiori elements: which columns, filters, sections and buttons to draw.
 // No UI code is written by hand, Fiori elements builds the screens from these tags.
 
@@ -10,7 +21,7 @@ annotate service.AdoptionApplications with @(
         TypeName       : 'Application',
         TypeNamePlural : 'Applications',
         Title          : { Value : applicationID },
-        Description    : { Value : status }
+        Description    : { Value : status }   // (the colour is shown in the list and in the Review section)
     },
 
     // filter bar of the list report (FR-ADM-006: search, filter, sort)
@@ -20,10 +31,10 @@ annotate service.AdoptionApplications with @(
     UI.LineItem : [
         { Value : applicationID,        Label : 'Application ID' },
         { Value : animal.name,          Label : 'Animal' },
-        { Value : applicant.firstName,  Label : 'Applicant' },
-        { Value : applicant.lastName,   Label : 'Last Name' },
+        { Value : applicant.fullName,   Label : 'Applicant' },
         { Value : applicationDate,      Label : 'Application Date' },
-        { Value : status,               Label : 'Status' }
+        // Criticality colours the status (statusCriticality: 3 green, 2 orange, 1 red, 0 grey)
+        { Value : status,               Label : 'Status', Criticality : statusCriticality, CriticalityRepresentation : #WithIcon }
     ],
 
     // buttons in the header of the object page (Fiori screen #5)
@@ -43,8 +54,7 @@ annotate service.AdoptionApplications with @(
     ],
 
     UI.FieldGroup #ApplicantInfo : { Data : [
-        { Value : applicant.firstName, Label : 'First Name' },
-        { Value : applicant.lastName,  Label : 'Last Name' },
+        { Value : applicant.fullName,  Label : 'Applicant' },
         { Value : applicant.email,     Label : 'Email' },
         { Value : applicant.phoneNumber, Label : 'Phone' },
         { Value : animal.name,         Label : 'Animal' },
@@ -62,7 +72,7 @@ annotate service.AdoptionApplications with @(
     ]},
 
     UI.FieldGroup #Review : { Data : [
-        { Value : status,          Label : 'Status' },
+        { Value : status,          Label : 'Status', Criticality : statusCriticality, CriticalityRepresentation : #WithIcon },
         { Value : reviewedBy,      Label : 'Reviewed By' },
         { Value : reviewedAt,      Label : 'Reviewed At' },
         { Value : staffRemarks,    Label : 'Staff Remarks' },
@@ -90,3 +100,24 @@ annotate service.ApplicationDocuments with @(
         { Value : note,         Label : 'Note' }
     ]
 );
+
+// the animal filter and the animal field show the animal's NAME instead of an ID,
+// and open a value help (a pick list of animals) when the user clicks the filter
+annotate service.AdoptionApplications with {
+    animal @(
+        Common.Label : 'Animal',
+        Common.Text : animal.name,
+        Common.TextArrangement : #TextOnly,
+        Common.ValueList : {
+            Label : 'Animals',
+            CollectionPath : 'Animals',
+            Parameters : [
+                { $Type : 'Common.ValueListParameterInOut',       LocalDataProperty : animal_ID, ValueListProperty : 'ID' },
+                { $Type : 'Common.ValueListParameterDisplayOnly', ValueListProperty : 'animalID' },
+                { $Type : 'Common.ValueListParameterDisplayOnly', ValueListProperty : 'name' },
+                { $Type : 'Common.ValueListParameterDisplayOnly', ValueListProperty : 'species' },
+                { $Type : 'Common.ValueListParameterDisplayOnly', ValueListProperty : 'adoptionStatus' }
+            ]
+        }
+    );
+};
