@@ -1,0 +1,10 @@
+ID,animal_ID,checkupDate,healthStatus,vaccinationStatus,diagnosis,treatment,medication,veterinarianName,weight,healthSummary,adoptionEligible,nextCheckupDate
+c0c0c0c0-0000-0000-0000-000000000001,aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,2026-09-01,Healthy,Vaccinated,,,,Dr. Mehta,28.5,Fit and fully vaccinated,true,2027-03-01
+c0c0c0c0-0000-0000-0000-000000000002,bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb,2026-09-10,Healthy,Vaccinated,,,,Dr. Mehta,3.8,Healthy coat and teeth,true,2027-03-10
+c0c0c0c0-0000-0000-0000-000000000003,cccccccc-cccc-cccc-cccc-cccccccccccc,2026-10-01,Injured,Not Vaccinated,Paw wound,Cleaned and bandaged,Antiseptic,Dr. Rao,11,Minor injury,false,2026-10-08
+c0c0c0c0-0000-0000-0000-000000000004,cccccccc-cccc-cccc-cccc-cccccccccccc,2026-10-12,Sick,Not Vaccinated,Skin infection,Medicated baths,Antibiotics,Dr. Rao,10.6,Under treatment for skin infection,false,2026-10-20
+c0c0c0c0-0000-0000-0000-000000000005,dddddddd-dddd-dddd-dddd-dddddddddddd,2026-09-18,Healthy,Partially Vaccinated,,,,Dr. Iyer,1.6,Second vaccine due,true,2026-11-18
+c0c0c0c0-0000-0000-0000-000000000006,eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee,2026-08-25,Healthy,Vaccinated,,,,Dr. Iyer,5.2,Senior check passed,true,2027-02-25
+c0c0c0c0-0000-0000-0000-000000000007,ffffffff-ffff-ffff-ffff-ffffffffffff,2026-09-28,Healthy,Vaccinated,,,,Dr. Iyer,30.1,Strong and healthy,true,2027-03-28
+c0c0c0c0-0000-0000-0000-000000000008,a7a7a7a7-a7a7-a7a7-a7a7-a7a7a7a7a7a7,2026-10-03,Healthy,Partially Vaccinated,,,,Dr. Mehta,14.2,Booster due next month,true,2026-11-03
+c0c0c0c0-0000-0000-0000-000000000009,a8a8a8a8-a8a8-a8a8-a8a8-a8a8a8a8a8a8,2026-09-01,Healthy,Not Vaccinated,,,,Dr. Rao,0.04,Active and alert,true,2027-01-01

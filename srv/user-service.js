@@ -3,6 +3,11 @@
 //CAP gives every entity the standard operations (CRUD) automatically: 'CREATE', 'READ', 'UPDATE'.... (no need to define action)
 // before = runs before CAP saves, on = replaces what CAP does, after = runs after CAP has saved
 const cds = require('@sap/cds');
+// take the query builders from cds.ql, not the globals: the Fiori UI plugin loads a second copy
+// of @sap/cds, and then the global SELECT/INSERT/UPDATE belong to the wrong copy
+const { SELECT, INSERT, UPDATE } = cds.ql;
+// shared "next code number" helper (same logic as ANM- codes on the admin side)
+const { nextId } = require('./lib/ids');
 
 module.exports = cds.service.impl(async function () {
 
@@ -34,9 +39,18 @@ module.exports = cds.service.impl(async function () {
         await UPDATE(Users, req.data.ID).with({ status: 'Inactive' });
     });
 
+    // an application counts as "open" while it is still being handled or was approved.
+    // Rejected and Withdrawn ones are finished, so the user may apply again after those.
+    const OPEN_STATUSES = ['Submitted', 'Under Review', 'Approved'];
+
     // ---------- before a new application is saved ----------
     this.before('CREATE', 'AdoptionApplications', async (req) => {
         const me = await currentUser(req);
+
+        // history and documents are compositions, so CAP would also save them in a "deep insert".
+        // An adopter must not write their own history or documents, so we drop them.
+        delete req.data.history;
+        delete req.data.documents;
 
         const animal = await SELECT.one.from(Animals).where({ ID: req.data.animal_ID });
         if (!animal) return req.reject(404, 'Animal not found');
@@ -44,8 +58,17 @@ module.exports = cds.service.impl(async function () {
             return req.reject(409, `${animal.name} is not available for adoption`);
         }
 
-        const { count } = await SELECT.one.from(AdoptionApplications).columns('count(*) as count');
-        req.data.applicationID = 'APP-' + String(count + 1).padStart(4, '0');
+        // duplicate guard: one open application per user and animal
+        const duplicate = await SELECT.one.from(AdoptionApplications).where({
+            applicant_ID: me.ID, animal_ID: animal.ID, status: { in: OPEN_STATUSES }
+        });
+        if (duplicate) {
+            return req.reject(409, `You already applied for ${animal.name} (${duplicate.applicationID})`);
+        }
+
+        // (was: count the existing applications + 1. Replaced by nextId (highest + 1), because
+        //  applicationID is now @assert.unique and a count can repeat a number seeded data already uses)
+        req.data.applicationID = await nextId(AdoptionApplications, 'applicationID', 'APP-');
         req.data.applicant_ID  = me.ID;          // always the logged-in user
         req.data.status        = 'Submitted';
         req.data.applicationDate = new Date().toISOString().slice(0, 10);   // Date field, so date only
@@ -61,6 +84,43 @@ module.exports = cds.service.impl(async function () {
             newStatus: 'Submitted',
             changedBy: req.user.id
         });
+    });
+
+    // ---------- before an application is edited ----------
+    // (the @restrict rule already allows this only for my own Submitted applications)
+    // the animal and the links cannot be changed afterwards: otherwise a user could move an
+    // application to an animal that is no longer available, or add history rows
+    this.before('UPDATE', 'AdoptionApplications', (req) => {
+        delete req.data.animal_ID;
+        delete req.data.applicant_ID;
+        delete req.data.history;
+        delete req.data.documents;
+    });
+
+    // ---------- action: apply (bound to Animals) ----------
+    // "Apply" button on an animal: creates the application for that animal.
+    // We send a normal CREATE through this same service, so all the checks above
+    // (profile, availability, duplicate guard, history row) run exactly once, in one place.
+    this.on('apply', 'Animals', async (req) => {
+        const key = req.params[0];
+        const ID = key?.ID ?? key;   // the key can arrive as { ID } or as a plain string
+
+        const { AdoptionApplications: MyApplications } = this.entities;   // the service projection
+        // we choose the new key ourselves, so we know which row to read back afterwards
+        const newID = cds.utils.uuid();
+        await this.run(INSERT.into(MyApplications).entries({
+            ID: newID,
+            animal_ID: ID,
+            reasonForAdoption: req.data.reasonForAdoption,
+            housingType: req.data.housingType,
+            housingDetails: req.data.housingDetails,
+            hasOtherPets: req.data.hasOtherPets ?? false,
+            petExperience: req.data.petExperience
+        }));
+
+        // read the full application to return it
+        // (the read goes through the service, so it only shows the fields an adopter may see)
+        return this.run(SELECT.one.from(MyApplications).where({ ID: newID }));
     });
 
     // ---------- action: withdraw ----------

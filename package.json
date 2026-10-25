@@ -32,6 +32,18 @@
             "roles": [
               "User"
             ]
+          },
+          "vikram@example.com": {
+            "password": "user",
+            "roles": [
+              "User"
+            ]
+          },
+          "meera@example.com": {
+            "password": "user",
+            "roles": [
+              "User"
+            ]
           }
         }
       }

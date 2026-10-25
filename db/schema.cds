@@ -28,11 +28,13 @@ entity Shelters : common.Base {
                                               else 0
                                           end;
     status              : common.ShelterStatus default 'Active';
-    imageUrl            : String(1000);
+    imageUrl            : String(1000);   // Cloudinary URL of the shelter picture (upload comes later)
     animals             : Association to many Animals on animals.shelter = $self;
 }
 
 // ---------------- Animals ----------------
+// @assert.unique: CAP refuses a second row with the same animalID (the generated code must stay unique)
+@assert.unique.animalID: [animalID]
 entity Animals : common.Base {
     animalID          : String(20) @readonly;   // generated in service logic, e.g. ANM-0001
     shelter           : Association to Shelters @mandatory;   // creates shelter_ID
@@ -48,9 +50,13 @@ entity Animals : common.Base {
     adoptionStatus    : common.AdoptionStatus    default 'Available';
     adoptionEligible  : Boolean default false;
     adoptionFee       : Decimal(10, 2) @assert.range: [0, 999999];
-    photo             : String(500);
+    // Cloudinary URL of the photo (String(1000) because Cloudinary URLs with transformations get long;
+    // the sample data uses small data-URI emoji pictures instead)
+    photo             : String(1000);
     description       : String(500);
-    healthRecords     : Composition of many HealthRecords on healthRecords.animal = $self;
+    // Association (not Composition): with draft, a Composition would make health records part of the
+    // animal's draft, so they could only be edited inside an animal. Health records get their own app.
+    healthRecords     : Association to many HealthRecords on healthRecords.animal = $self;
     applications      : Association to many AdoptionApplications on applications.animal = $self;
 }
 
@@ -73,6 +79,7 @@ entity Users : common.Base {
 }
 
 // ---------------- Adoption Applications ----------------
+@assert.unique.applicationID: [applicationID]
 entity AdoptionApplications : common.Base {
     applicationID     : String(20) @readonly;
     animal            : Association to Animals @mandatory;   // animal_ID
@@ -90,6 +97,9 @@ entity AdoptionApplications : common.Base {
     rejectionReason   : String(500);
     documents         : Composition of many ApplicationDocuments on documents.application = $self;
     history           : Composition of many ApplicationHistory   on history.application   = $self;
+    // the adoption created when this application is approved (empty before that).
+    // "to one ... on" = no extra column, CAP finds it through Adoptions.application
+    adoption          : Association to one Adoptions on adoption.application = $self;
 }
 
 entity ApplicationDocuments : common.Attachment {
@@ -107,6 +117,7 @@ entity ApplicationHistory : common.Base {
 
 // ---------------- Adoptions (auto-created on approval) ----------------
 @assert.unique.application: [application]
+@assert.unique.adoptionID: [adoptionID]
 entity Adoptions : common.Base {
     adoptionID   : String(20) @readonly;
     application  : Association to AdoptionApplications @mandatory;   // application_ID
