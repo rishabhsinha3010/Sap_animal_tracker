@@ -1,0 +1,103 @@
+<!-- Admin dashboard (custom page). Every number is read live from the read-only views in
+     srv/admin-service.cds, so it is never out of date. The tiles also open the list pages. -->
+<mvc:View controllerName="adminapplications.ext.dashboard.Dashboard"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:l="sap.ui.layout"
+    xmlns:core="sap.ui.core"
+    xmlns:app="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1">
+    <Page title="Animal Adoption - Admin Dashboard" class="sapUiContentPadding">
+        <content>
+            <!-- navigation: app:route = name of the route in manifest.json -->
+            <Title text="Manage" level="H3" class="sapUiSmallMarginBottom"/>
+            <HBox wrap="Wrap" class="sapUiSmallMarginBottom">
+                <GenericTile header="Applications" subheader="Review and decide" press=".onOpen" app:route="AdoptionApplicationsList" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+                    <TileContent><ImageContent src="sap-icon://document-text"/></TileContent>
+                </GenericTile>
+                <GenericTile header="Animals" subheader="Add and edit animals" press=".onOpen" app:route="AnimalsList" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+                    <TileContent><ImageContent src="sap-icon://heart"/></TileContent>
+                </GenericTile>
+                <GenericTile header="Shelters" subheader="Capacity and contact" press=".onOpen" app:route="SheltersList" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+                    <TileContent><ImageContent src="sap-icon://building"/></TileContent>
+                </GenericTile>
+                <GenericTile header="Health Records" subheader="Checkups, Mark Recovered" press=".onOpen" app:route="HealthRecordsList" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+                    <TileContent><ImageContent src="sap-icon://stethoscope"/></TileContent>
+                </GenericTile>
+                <GenericTile header="Inspections" subheader="Post-adoption visits" press=".onOpen" app:route="InspectionsList" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+                    <TileContent><ImageContent src="sap-icon://inspection"/></TileContent>
+                </GenericTile>
+            </HBox>
+
+            <!-- KPI cards (AnimalSummary view, one row with key 1) -->
+            <Title text="Animals" level="H3" class="sapUiSmallMarginBottom"/>
+            <HBox wrap="Wrap" class="sapUiSmallMarginBottom">
+                <GenericTile header="Total" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+                    <TileContent><NumericContent value="{/AnimalSummary(1)/totalAnimals}" withMargin="false"/></TileContent>
+                </GenericTile>
+                <GenericTile header="Available" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+                    <TileContent><NumericContent value="{/AnimalSummary(1)/availableAnimals}" valueColor="Good" withMargin="false"/></TileContent>
+                </GenericTile>
+                <GenericTile header="Adopted" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+                    <TileContent><NumericContent value="{/AnimalSummary(1)/adoptedAnimals}" valueColor="Neutral" withMargin="false"/></TileContent>
+                </GenericTile>
+                <GenericTile header="Unavailable" subheader="Reserved, under treatment" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+                    <TileContent><NumericContent value="{/AnimalSummary(1)/unavailableAnimals}" valueColor="Critical" withMargin="false"/></TileContent>
+                </GenericTile>
+            </HBox>
+
+            <l:Grid defaultSpan="XL6 L6 M12 S12" vSpacing="1">
+                <!-- applications per status (ApplicationsByStatus view) -->
+                <List headerText="Applications by Status" items="{path: '/ApplicationsByStatus', parameters: {$orderby: 'status'}}">
+                    <CustomListItem>
+                        <VBox class="sapUiSmallMargin">
+                            <Text text="{status}: {total}"/>
+                            <!-- simple bar: 10% per application, so the statuses can be compared at a glance -->
+                            <ProgressIndicator percentValue="{= Math.min(100, ${total} * 10) }" displayValue="{total}" showValue="true"/>
+                        </VBox>
+                    </CustomListItem>
+                </List>
+
+                <!-- shelter occupancy (ShelterOccupancy view) -->
+                <List headerText="Shelter Occupancy" items="{path: '/ShelterOccupancy', parameters: {$orderby: 'shelterName'}}">
+                    <CustomListItem>
+                        <VBox class="sapUiSmallMargin">
+                            <Text text="{shelterName} ({city})"/>
+                            <!-- Decimal arrives as text from OData, Number() turns it into a number -->
+                            <ProgressIndicator percentValue="{= Number(${occupancyPercentage}) }"
+                                displayValue="{currentOccupancy} / {capacity}" showValue="true"
+                                state="{= Number(${occupancyPercentage}) >= 90 ? 'Error' : Number(${occupancyPercentage}) >= 70 ? 'Warning' : 'Success' }"/>
+                        </VBox>
+                    </CustomListItem>
+                </List>
+
+                <!-- adoptions per month (AdoptionTrend view) -->
+                <Table headerText="Adoption Trend (per month)" items="{path: '/AdoptionTrend', parameters: {$orderby: 'year,month'}}">
+                    <columns>
+                        <Column><Text text="Year"/></Column>
+                        <Column><Text text="Month"/></Column>
+                        <Column hAlign="End"><Text text="Adoptions"/></Column>
+                    </columns>
+                    <ColumnListItem>
+                        <Text text="{year}"/>
+                        <Text text="{month}"/>
+                        <ObjectNumber number="{total}"/>
+                    </ColumnListItem>
+                </Table>
+
+                <!-- checkups that are late (OverdueCheckups view) -->
+                <Table headerText="Overdue Checkups" items="{path: '/OverdueCheckups', parameters: {$expand: 'animal', $orderby: 'nextCheckupDate'}}">
+                    <columns>
+                        <Column><Text text="Animal"/></Column>
+                        <Column><Text text="Due since"/></Column>
+                        <Column><Text text="Health"/></Column>
+                    </columns>
+                    <ColumnListItem>
+                        <Text text="{animal/name}"/>
+                        <Text text="{nextCheckupDate}"/>
+                        <ObjectStatus text="{healthStatus}" state="Warning"/>
+                    </ColumnListItem>
+                </Table>
+            </l:Grid>
+        </content>
+    </Page>
+</mvc:View>

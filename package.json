@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@cap-js/hana": "^3.1.2",
+    "@cap-js/hana": "^3",
     "@sap/cds": "^10.1.1",
     "@sap/xssec": "^4.15.0"
   },
@@ -46,13 +46,17 @@
             ]
           }
         }
+      },
+      "[hybrid]": {
+        "db": "hana"
       }
     }
   },
   "devDependencies": {
     "@cap-js/sqlite": "^3.1.2",
     "@sap/cds-dk": "^10.2.0",
-    "cds-plugin-ui5": "^0.17.0"
+    "cds-plugin-ui5": "^0.17.0",
+    "cloudinary": "^2.11.0"
   },
   "workspaces": [
     "app/*"
@@ -61,6 +65,7 @@
     "watch-admin-applications": "cds watch --open adminapplications/index.html?sap-ui-xx-viewCache=false --livereload false"
   },
   "sapux": [
-    "app/admin-applications"
+    "app/admin-applications",
+    "app/adopter"
   ]
 }

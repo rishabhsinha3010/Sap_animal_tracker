@@ -1,5 +1,0 @@
-ID,firstName,lastName,email,phoneNumber,city,state,role,status
-99999999-9999-9999-9999-999999999991,Ravi,Kumar,admin@example.com,+91 98480 00001,Hyderabad,Telangana,Admin,Active
-99999999-9999-9999-9999-999999999992,Asha,Reddy,asha@example.com,+91 98480 00002,Hyderabad,Telangana,User,Active
-99999999-9999-9999-9999-999999999993,Vikram,Singh,vikram@example.com,+91 98480 00003,Bengaluru,Karnataka,User,Active
-99999999-9999-9999-9999-999999999994,Meera,Nair,meera@example.com,+91 98480 00004,Pune,Maharashtra,User,Active

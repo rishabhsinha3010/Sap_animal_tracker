@@ -1,0 +1,5 @@
+ID,firstName,lastName,email,phoneNumber,city,state,role,status,address,postalCode
+99999999-0000-0000-0000-000000000001,Ravi,Kumar,admin@example.com,+91 98480 00001,Hyderabad,Telangana,Admin,Active,,
+99999999-0000-0000-0000-000000000002,Asha,Reddy,asha@example.com,+91 98480 00002,Hyderabad,Telangana,User,Active,7 Banjara Hills,500034
+99999999-0000-0000-0000-000000000003,Vikram,Singh,vikram@example.com,+91 98480 00003,Bengaluru,Karnataka,User,Active,21 Koramangala,560034
+99999999-0000-0000-0000-000000000004,Meera,Nair,meera@example.com,+91 98480 00004,Pune,Maharashtra,User,Active,3 Kalyani Nagar,411006

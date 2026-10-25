@@ -183,3 +183,18 @@ annotate AdminService.AdoptionApplications actions {
     approve           @Core.OperationAvailable : in.canDecide;
     rejectApplication @Core.OperationAvailable : in.canDecide;
 };
+
+// ---------- draft (Fiori "Edit / Save / Discard") ----------
+// With draft, every create or edit first goes into a private copy (the draft). Nothing is checked or
+// saved for real until "Save" (= draftActivate). Only then do our CREATE/UPDATE handlers run, with the
+// complete data, so the shelter and health checks in admin-service.js keep working.
+// (side effect: a plain POST now creates a draft; test/api-test.sh shows the full draft flow)
+annotate AdminService.Animals       with @odata.draft.enabled;
+annotate AdminService.Shelters      with @odata.draft.enabled;
+annotate AdminService.HealthRecords with @odata.draft.enabled;
+annotate AdminService.Inspections   with @odata.draft.enabled;
+
+// occupancy is always recounted by refreshShelter() in admin-service.js, never typed in
+annotate AdminService.Shelters with {
+    currentOccupancy @readonly;
+};

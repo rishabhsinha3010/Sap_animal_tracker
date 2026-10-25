@@ -1,0 +1,70 @@
+{
+  "animals/Cat_Indian_Domestic_Shorthair": {
+    "url": "https://res.cloudinary.com/ts2larso/image/upload/c_fill,g_auto,h_600,w_600/f_auto,q_auto/v1792924071/animal-adoption/animals/Cat_Indian_Domestic_Shorthair?_a=BAMAROXy0",
+    "publicId": "animal-adoption/animals/Cat_Indian_Domestic_Shorthair"
+  },
+  "animals/Cat_Persian": {
+    "url": "https://res.cloudinary.com/ts2larso/image/upload/c_fill,g_auto,h_600,w_600/f_auto,q_auto/v1792924072/animal-adoption/animals/Cat_Persian?_a=BAMAROXy0",
+    "publicId": "animal-adoption/animals/Cat_Persian"
+  },
+  "animals/Cow_Gir": {
+    "url": "https://res.cloudinary.com/ts2larso/image/upload/c_fill,g_auto,h_600,w_600/f_auto,q_auto/v1792924072/animal-adoption/animals/Cow_Gir?_a=BAMAROXy0",
+    "publicId": "animal-adoption/animals/Cow_Gir"
+  },
+  "animals/Dog_Beagle": {
+    "url": "https://res.cloudinary.com/ts2larso/image/upload/c_fill,g_auto,h_600,w_600/f_auto,q_auto/v1792924073/animal-adoption/animals/Dog_Beagle?_a=BAMAROXy0",
+    "publicId": "animal-adoption/animals/Dog_Beagle"
+  },
+  "animals/Dog_German_Shepherd": {
+    "url": "https://res.cloudinary.com/ts2larso/image/upload/c_fill,g_auto,h_600,w_600/f_auto,q_auto/v1792924074/animal-adoption/animals/Dog_German_Shepherd?_a=BAMAROXy0",
+    "publicId": "animal-adoption/animals/Dog_German_Shepherd"
+  },
+  "animals/Dog_Golden_Retriever": {
+    "url": "https://res.cloudinary.com/ts2larso/image/upload/c_fill,g_auto,h_600,w_600/f_auto,q_auto/v1792924075/animal-adoption/animals/Dog_Golden_Retriever?_a=BAMAROXy0",
+    "publicId": "animal-adoption/animals/Dog_Golden_Retriever"
+  },
+  "animals/Dog_Labrador_Retriever": {
+    "url": "https://res.cloudinary.com/ts2larso/image/upload/c_fill,g_auto,h_600,w_600/f_auto,q_auto/v1792924076/animal-adoption/animals/Dog_Labrador_Retriever?_a=BAMAROXy0",
+    "publicId": "animal-adoption/animals/Dog_Labrador_Retriever"
+  },
+  "animals/Duck_Pekin": {
+    "url": "https://res.cloudinary.com/ts2larso/image/upload/c_fill,g_auto,h_600,w_600/f_auto,q_auto/v1792924076/animal-adoption/animals/Duck_Pekin?_a=BAMAROXy0",
+    "publicId": "animal-adoption/animals/Duck_Pekin"
+  },
+  "animals/Guinea_Pig_American": {
+    "url": "https://res.cloudinary.com/ts2larso/image/upload/c_fill,g_auto,h_600,w_600/f_auto,q_auto/v1792924077/animal-adoption/animals/Guinea_Pig_American?_a=BAMAROXy0",
+    "publicId": "animal-adoption/animals/Guinea_Pig_American"
+  },
+  "animals/Hamster_Syrian": {
+    "url": "https://res.cloudinary.com/ts2larso/image/upload/c_fill,g_auto,h_600,w_600/f_auto,q_auto/v1792924078/animal-adoption/animals/Hamster_Syrian?_a=BAMAROXy0",
+    "publicId": "animal-adoption/animals/Hamster_Syrian"
+  },
+  "animals/Horse_Marwari": {
+    "url": "https://res.cloudinary.com/ts2larso/image/upload/c_fill,g_auto,h_600,w_600/f_auto,q_auto/v1792924078/animal-adoption/animals/Horse_Marwari?_a=BAMAROXy0",
+    "publicId": "animal-adoption/animals/Horse_Marwari"
+  },
+  "animals/Parrot_Budgerigar": {
+    "url": "https://res.cloudinary.com/ts2larso/image/upload/c_fill,g_auto,h_600,w_600/f_auto,q_auto/v1792924079/animal-adoption/animals/Parrot_Budgerigar?_a=BAMAROXy0",
+    "publicId": "animal-adoption/animals/Parrot_Budgerigar"
+  },
+  "animals/Parrot_Cockatiel": {
+    "url": "https://res.cloudinary.com/ts2larso/image/upload/c_fill,g_auto,h_600,w_600/f_auto,q_auto/v1792924080/animal-adoption/animals/Parrot_Cockatiel?_a=BAMAROXy0",
+    "publicId": "animal-adoption/animals/Parrot_Cockatiel"
+  },
+  "animals/Pigeon_Fantail": {
+    "url": "https://res.cloudinary.com/ts2larso/image/upload/c_fill,g_auto,h_600,w_600/f_auto,q_auto/v1792924081/animal-adoption/animals/Pigeon_Fantail?_a=BAMAROXy0",
+    "publicId": "animal-adoption/animals/Pigeon_Fantail"
+  },
+  "animals/Rabbit_Holland_Lop": {
+    "url": "https://res.cloudinary.com/ts2larso/image/upload/c_fill,g_auto,h_600,w_600/f_auto,q_auto/v1792924081/animal-adoption/animals/Rabbit_Holland_Lop?_a=BAMAROXy0",
+    "publicId": "animal-adoption/animals/Rabbit_Holland_Lop"
+  },
+  "animals/Rabbit_New_Zealand_White": {
+    "url": "https://res.cloudinary.com/ts2larso/image/upload/c_fill,g_auto,h_600,w_600/f_auto,q_auto/v1792924082/animal-adoption/animals/Rabbit_New_Zealand_White?_a=BAMAROXy0",
+    "publicId": "animal-adoption/animals/Rabbit_New_Zealand_White"
+  },
+  "animals/Turtle_Red_Eared_Slider": {
+    "url": "https://res.cloudinary.com/ts2larso/image/upload/c_fill,g_auto,h_600,w_600/f_auto,q_auto/v1792924083/animal-adoption/animals/Turtle_Red_Eared_Slider?_a=BAMAROXy0",
+    "publicId": "animal-adoption/animals/Turtle_Red_Eared_Slider"
+  }
+}

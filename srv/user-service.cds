@@ -37,6 +37,7 @@ service UserService @(
             ID,
             firstName,
             lastName,
+            fullName,   // calculated (first + last name), read-only, used as the page title
             email,
             phoneNumber,
             address,
@@ -267,4 +268,19 @@ annotate UserService.AdoptionApplications with {
     status          @readonly;
     staffRemarks    @readonly;
     rejectionReason @readonly;
+};
+
+// My Profile page: draft gives the Fiori "Edit / Save / Cancel" buttons and keeps half-typed
+// changes until Save. The checks in user-service.js run on Save (draftActivate), like on the admin side.
+annotate UserService.Users with @odata.draft.enabled;
+
+// texts for the Apply dialog (Fiori builds the dialog from the action parameters)
+annotate UserService.Animals actions {
+    apply(
+        reasonForAdoption @title : 'Why do you want to adopt?' @UI.MultiLineText,
+        housingType       @title : 'Housing Type',
+        housingDetails    @title : 'Housing Details',
+        hasOtherPets      @title : 'Other Pets at Home',
+        petExperience     @title : 'Pet Experience'
+    );
 };

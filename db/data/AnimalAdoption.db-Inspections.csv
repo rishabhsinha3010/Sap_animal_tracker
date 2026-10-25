@@ -1,0 +1,3 @@
+ID,adoption_ID,inspector_ID,inspectionDate,inspectionType,animalCondition,findings,existingPetDetails,result,remarks
+cccccccc-0000-0000-0000-000000000001,ffffffff-0000-0000-0000-000000000001,99999999-0000-0000-0000-000000000001,2026-09-10,Initial,Healthy and active,"Clean pond, safe night shelter","4 ducks, 6 hens",Validated,All good
+cccccccc-0000-0000-0000-000000000002,ffffffff-0000-0000-0000-000000000002,99999999-0000-0000-0000-000000000001,2026-10-15,Initial,"Healthy, settled in well","Fenced garden, dog bed and bowls present",,Pending,Waiting for the final sign-off

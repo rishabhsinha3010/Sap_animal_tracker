@@ -1,0 +1,4 @@
+ID,shelterName,shelterCode,addressLine1,city,state,postalCode,country,contactNumber,email,website,licenseNumber,shelterType,operatingTime,closingTime,capacity,status,currentOccupancy
+11111111-0000-0000-0000-000000000001,Happy Paws Shelter,SHL-HYD,12 Jubilee Hills Road,Hyderabad,Telangana,500033,India,+91 40 2355 0101,contact@happypaws.example,https://happypaws.example,TS-AWB-2019-114,Dogs and Cats,09:00:00,18:00:00,40,Active,5
+11111111-0000-0000-0000-000000000002,City Care Small Pets,SHL-PNE,4 FC Road,Pune,Maharashtra,411004,India,+91 20 2565 0202,hello@citycare.example,https://citycare.example,MH-AWB-2020-087,Small animals and birds,10:00:00,17:00:00,25,Active,7
+11111111-0000-0000-0000-000000000003,Green Tails Farm Rescue,SHL-BLR,"Survey No. 88, Hesaraghatta Road",Bengaluru,Karnataka,560089,India,+91 80 4123 0303,rescue@greentails.example,https://greentails.example,KA-AWB-2018-042,Farm animals and reptiles,08:00:00,16:00:00,10,Active,3
