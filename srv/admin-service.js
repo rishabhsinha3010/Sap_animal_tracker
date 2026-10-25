@@ -264,9 +264,22 @@ module.exports = cds.service.impl(async function () {
     const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
     const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
-    this.before(['CREATE', 'UPDATE'],
+        this.before(['CREATE', 'UPDATE'],
         ['ApplicationDocuments', 'AdoptionDocuments', 'HealthDocuments', 'InspectionDocuments'],
         (req) => {
+            // when the file itself is uploaded (PUT .../content) its type and size come from the request headers
+            if (req.data.content) {
+                const type   = (req.headers?.['content-type'] || '').split(';')[0].trim();
+                const length = Number(req.headers?.['content-length']);
+                if (!ALLOWED_TYPES.includes(type)) {
+                    return req.reject(400, 'Only PDF, JPEG, JPG and PNG files are allowed');
+                }
+                if (length > MAX_FILE_SIZE) {
+                    return req.reject(400, 'The file is larger than 10 MB');
+                }
+                req.data.fileSize = length;     // store the real size next to the file
+                return;
+            }
             const { mediaType, fileSize } = req.data;
             if (mediaType && !ALLOWED_TYPES.includes(mediaType)) {
                 return req.reject(400, 'Only PDF, JPEG, JPG and PNG files are allowed');

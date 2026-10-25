@@ -102,6 +102,8 @@ type DocumentType : String(30) enum {
 }
 
 aspect Attachment : Base {
+  // the file itself (binary). @Core.MediaType / ContentDisposition make CAP handle upload (PUT) and download (GET)
+  content      : LargeBinary @Core.MediaType: mediaType @Core.ContentDisposition.Filename: fileName;
   fileName     : String(255) @mandatory;
   mediaType    : String(100) @mandatory;
   fileSize     : Integer;

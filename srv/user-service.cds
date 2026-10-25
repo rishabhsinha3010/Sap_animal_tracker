@@ -178,14 +178,14 @@ service UserService @(
     // Documents (agreements, certificates, letters) of my adoptions
     @restrict: [{ grant: 'READ', to: 'User', where: 'adoption.application.applicant.email = $user' }]
     entity AdoptionDocuments as projection on db.AdoptionDocuments {
-        ID, adoption, fileName, mediaType, fileSize, documentType, documentId, url
+        ID, adoption, fileName, mediaType, fileSize, documentType, documentId, url, content
     };
 
     // Health certificates only (not internal medical reports)
     // filtered by document type, not by owner
     @restrict: [{ grant: 'READ', to: 'User', where: 'documentType = ''Health Certificate''' }]
     entity HealthDocuments as projection on db.HealthDocuments {
-        ID, healthRecord, fileName, mediaType, fileSize, documentType, documentId, url
+        ID, healthRecord, fileName, mediaType, fileSize, documentType, documentId, url, content
     };
 
 };
