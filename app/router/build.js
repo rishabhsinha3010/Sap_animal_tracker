@@ -1,0 +1,17 @@
+// Copies the UI into resources/ so the app router can serve it (see xs-app.json):
+//   app/index.html           -> resources/index.html          (landing page)
+//   app/admin/webapp         -> resources/admin-app/          (same URLs as with cds watch)
+//   app/adopter/webapp       -> resources/adopter-app/
+// Runs during the MTA build (mta.yaml) and before starting the router locally.
+const fs = require('fs');
+const path = require('path');
+
+const APP = path.join(__dirname, '..');
+const OUT = path.join(__dirname, 'resources');
+
+fs.rmSync(OUT, { recursive: true, force: true });
+fs.mkdirSync(OUT, { recursive: true });
+fs.copyFileSync(path.join(APP, 'index.html'), path.join(OUT, 'index.html'));
+fs.cpSync(path.join(APP, 'admin', 'webapp'), path.join(OUT, 'admin-app'), { recursive: true });
+fs.cpSync(path.join(APP, 'adopter', 'webapp'), path.join(OUT, 'adopter-app'), { recursive: true });
+console.log('UI copied to', OUT);

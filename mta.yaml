@@ -1,0 +1,85 @@
+_schema-version: "3.1"
+ID: animal-adoption-tracker
+version: 1.0.0
+description: Animal Adoption Tracker (SAP CAP + Fiori elements, XSUAA login)
+
+parameters:
+  enable-parallel-deployments: true
+
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - npm install
+        - npx cds build --production
+
+modules:
+  # CAP service (OData /admin and /user), built into gen/srv by `cds build --production`
+  - name: animal-adoption-srv
+    type: nodejs
+    path: gen/srv
+    parameters:
+      buildpack: nodejs_buildpack
+      memory: 256M
+      disk-quota: 1024M
+    build-parameters:
+      builder: npm
+    provides:
+      - name: srv-api
+        properties:
+          srv-url: ${default-url}
+    requires:
+      - name: animal-adoption-db
+      - name: animal-adoption-auth
+
+  # deploys the tables, views and CSV sample data (gen/db) into the HDI container
+  - name: animal-adoption-db-deployer
+    type: hdb
+    path: gen/db
+    parameters:
+      buildpack: nodejs_buildpack
+      memory: 256M
+      disk-quota: 1024M
+    requires:
+      - name: animal-adoption-db
+
+  # app router: XSUAA login, serves the landing page and both apps, forwards /admin and /user to the service
+  - name: animal-adoption-router
+    type: approuter.nodejs
+    path: app/router
+    parameters:
+      memory: 256M
+      disk-quota: 1024M
+      keep-existing-routes: true
+    build-parameters:
+      builder: custom
+      commands:
+        - npm run build
+      ignore: [node_modules/]
+    requires:
+      - name: srv-api
+        group: destinations
+        properties:
+          name: srv-api
+          url: ~{srv-url}
+          forwardAuthToken: true
+      - name: animal-adoption-auth
+
+resources:
+  # the HDI container you already use in BAS (hybrid profile) - not created, only bound
+  - name: animal-adoption-db
+    type: org.cloudfoundry.existing-service
+    parameters:
+      service-name: animal-adoption-tracker-db
+
+  # XSUAA: login + the Admin / User roles (see xs-security.json)
+  - name: animal-adoption-auth
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: application
+      service-name: animal-adoption-auth
+      path: ./xs-security.json
+      config:
+        xsappname: animal-adoption-tracker-${org}-${space}
+        tenant-mode: dedicated

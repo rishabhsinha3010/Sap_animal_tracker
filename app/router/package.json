@@ -1,0 +1,16 @@
+{
+  "name": "animal-adoption-router",
+  "version": "1.0.0",
+  "private": true,
+  "description": "App router: XSUAA login, serves the UI apps and forwards /admin and /user to the CAP service",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@sap/approuter": "^23"
+  },
+  "scripts": {
+    "build": "node build.js",
+    "start": "node node_modules/@sap/approuter/approuter.js"
+  }
+}

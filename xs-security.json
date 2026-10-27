@@ -1,0 +1,32 @@
+{
+  "xsappname": "animal-adoption-tracker",
+  "tenant-mode": "dedicated",
+  "description": "Animal Adoption Tracker: Admin (shelter staff) and User (adopter) roles",
+  "scopes": [
+    { "name": "$XSAPPNAME.Admin", "description": "Shelter staff: full access to the admin app (/admin)" },
+    { "name": "$XSAPPNAME.User",  "description": "Adopter: browse animals, apply, own profile and applications (/user)" }
+  ],
+  "role-templates": [
+    { "name": "Admin", "description": "Shelter administrator", "scope-references": ["$XSAPPNAME.Admin"] },
+    { "name": "User",  "description": "Adopter",               "scope-references": ["$XSAPPNAME.User"] }
+  ],
+  "role-collections": [
+    {
+      "name": "AnimalAdoption_Admin",
+      "description": "Animal Adoption Tracker - shelter administrator",
+      "role-template-references": ["$XSAPPNAME.Admin"]
+    },
+    {
+      "name": "AnimalAdoption_User",
+      "description": "Animal Adoption Tracker - adopter",
+      "role-template-references": ["$XSAPPNAME.User"]
+    }
+  ],
+  "oauth2-configuration": {
+    "redirect-uris": [
+      "https://*.hana.ondemand.com/**",
+      "https://*.applicationstudio.cloud.sap/**",
+      "http://localhost:5000/**"
+    ]
+  }
+}
