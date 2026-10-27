@@ -1,0 +1,410 @@
+PROJECT NAME:
+Animal Adoption Tracker
+
+TECHNOLOGY STACK:
+- SAP BTP
+- SAP CAP (Node.js)
+- CDS Data Model
+- SAP HANA Cloud
+- OData V4
+- SAP Fiori Elements
+- SAP Fiori List Report/Object Page
+- XSUAA Authentication & Authorization
+- MTA Deployment
+
+USER ROLES:
+1. Admin
+2. User
+
+==================================================================
+BUSINESS OBJECTS / ENTITIES
+==================================================================
+
+1. Animals
+- AnimalID (UUID)
+- Name
+- Species
+- Breed
+- Gender
+- Age
+- Color
+- ArrivalDate
+- HealthStatus
+- VaccinationStatus
+- AdoptionStatus
+- AdoptionFee
+- Description
+- PhotoURL
+- ShelterID
+- CreatedAt
+- ModifiedAt
+
+2. Shelters
+- ShelterID (UUID)
+- Name
+- Address
+- ContactNumber
+- Email
+- Capacity
+- CurrentOccupancy
+- OperatingHours
+- Status
+
+3. Users
+- UserID (UUID)
+- FirstName
+- LastName
+- Email
+- Password
+- Phone
+- Address
+- Role
+- Status
+
+4. AdoptionApplications
+- ApplicationID (UUID)
+- AnimalID
+- UserID
+- ApplicationDate
+- ReasonForAdoption
+- HousingDetails
+- PetExperience
+- Status
+- ReviewerRemarks
+- ReviewDate
+
+5. Adoptions
+- AdoptionID (UUID)
+- ApplicationID
+- AnimalID
+- UserID
+- AdoptionDate
+- Status
+- AdoptionDocument
+- Remarks
+
+6. HealthRecords
+- HealthRecordID (UUID)
+- AnimalID
+- Diagnosis
+- Treatment
+- Medication
+- Veterinarian
+- Weight
+- NextCheckupDate
+- HealthStatus
+- MedicalDocument
+
+7. Inspections
+- InspectionID (UUID)
+- AdoptionID
+- AnimalID
+- InspectionDate
+- InspectorName
+- InspectionType
+- ExistingPets
+- Result
+- Remarks
+- InspectionDocument
+
+==================================================================
+RELATIONSHIPS
+==================================================================
+
+Shelter 1:N Animals
+Animal 1:N HealthRecords
+Animal 1:N AdoptionApplications
+User 1:N AdoptionApplications
+Application 1:1 Adoption
+Adoption 1:N Inspections
+
+==================================================================
+USER FEATURES
+==================================================================
+
+1. User Registration
+- Create account
+- Validate required fields
+
+2. Login
+- XSUAA/OAuth based authentication
+
+3. Animal Catalog
+- View all available animals
+- Search animals
+- Filter animals by:
+  * Species
+  * Breed
+  * Shelter
+  * Adoption Status
+
+4. Animal Details
+- View profile
+- Health status
+- Vaccination status
+- Adoption fee
+- Shelter details
+
+5. Adoption Application
+- Apply for adoption
+- Upload supporting documents
+- Modify application before review
+- Withdraw application before review
+
+6. Track Application
+Statuses:
+- Submitted
+- Under Review
+- Approved
+- Rejected
+- Withdrawn
+
+7. Adoption Records
+- View own adoption records
+- Download certificates
+- View adoption documents
+
+8. Health Information
+- View animal health summary
+- View vaccination details
+- View adoption eligibility
+
+9. Inspection Results
+- View inspection status
+- View inspection outcome
+
+==================================================================
+ADMIN FEATURES
+==================================================================
+
+1. Animal Management
+CRUD Operations
+Fields:
+- Name
+- Species
+- Breed
+- Gender
+- Age
+- Shelter
+- Health Status
+- Vaccination Status
+- Adoption Status
+- Fee
+- Image
+
+2. Shelter Management
+CRUD Operations
+Fields:
+- Name
+- Address
+- Capacity
+- Occupancy
+- Contact Information
+
+3. Adoption Application Management
+- View all applications
+- Search
+- Filter
+- Sort
+- Review applications
+- Approve application
+- Reject application
+- Maintain review history
+
+4. Adoption Records
+- Automatically create adoption record after approval
+- Upload certificates
+- Manage adoption documents
+
+5. Health Records
+- Create health records
+- Update health records
+- Schedule checkups
+- Record treatments
+- Record vaccinations
+- Track recovery
+
+6. Post Adoption Inspection
+- Schedule inspection
+- Record findings
+- Upload supporting documents
+- Validate adoption
+
+Inspection Result Values:
+- Validated
+- Follow-up Required
+- Failed
+
+==================================================================
+ADMIN DASHBOARD
+==================================================================
+
+KPI CARDS
+- Total Animals
+- Available Animals
+- Adopted Animals
+- Unavailable Animals
+
+CHARTS
+
+1. Application Status Distribution
+Chart Type: Bar Chart
+Statuses:
+- Submitted
+- Under Review
+- Approved
+- Rejected
+- Withdrawn
+
+2. Adoption Trend
+Chart Type: Line Chart
+Measure:
+- Adopted Animals Over Time
+
+3. Shelter Occupancy
+Chart Type: Progress Indicator
+Fields:
+- Capacity
+- Occupancy
+- Utilization %
+
+==================================================================
+FILE MANAGEMENT
+==================================================================
+
+Upload Support:
+- Animal Photos
+- Medical Documents
+- Adoption Certificates
+- Inspection Documents
+
+Supported Formats:
+- PDF
+- JPG
+- JPEG
+- PNG
+
+Maximum File Size:
+10 MB
+
+Storage:
+SAP Document Management Service
+
+==================================================================
+AUTHORIZATION
+==================================================================
+
+Admin:
+- Full CRUD access
+
+User:
+- Read-only Animal Data
+- Manage own profile
+- Manage own applications
+- View own adoptions
+- View own inspections
+
+CAP Authorization:
+
+AdminService:
+@requires: 'Admin'
+
+UserService:
+@requires: 'User'
+
+==================================================================
+SERVICES
+==================================================================
+
+Create CAP services:
+
+AdminService
+- Animals
+- Shelters
+- Users
+- AdoptionApplications
+- Adoptions
+- HealthRecords
+- Inspections
+
+UserService
+- Animals
+- Shelters
+- AdoptionApplications
+- Adoptions
+- HealthRecords
+- Inspections
+- Users
+
+Expose:
+OData V4
+
+==================================================================
+VALIDATIONS
+==================================================================
+
+Animal:
+- Shelter mandatory
+- Name mandatory
+- Species mandatory
+
+Application:
+- One active application per animal per user
+
+Adoption:
+- Cannot create adoption for non-approved application
+
+Inspection:
+- Only for completed adoptions
+
+==================================================================
+NON FUNCTIONAL REQUIREMENTS
+==================================================================
+
+Response Time:
+< 3 seconds
+
+Concurrent Users:
+200
+
+Document Retention:
+7 Years
+
+File Upload Limit:
+10 MB
+
+Security:
+Role Based Access Control
+
+Audit:
+Track create/update/delete actions
+
+Encryption:
+TLS 1.2+
+
+==================================================================
+DEPLOYMENT
+==================================================================
+
+Generate complete project structure:
+
+db/
+srv/
+app/
+xs-security.json
+mta.yaml
+package.json
+
+Include:
+- CDS models
+- Services
+- Annotations
+- Fiori Elements annotations
+- Sample CSV test data
+- Authorization
+- Dashboard charts
+- Value helps
+- Associations
+- Compositions
+- Draft support
+- Managed entities
