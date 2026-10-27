@@ -11,6 +11,7 @@
       "target": "/admin/$1",
       "destination": "srv-api",
       "authenticationType": "xsuaa",
+      "scope": "$XSAPPNAME.Admin",
       "csrfProtection": true
     },
     {
@@ -19,6 +20,20 @@
       "destination": "srv-api",
       "authenticationType": "xsuaa",
       "csrfProtection": true
+    },
+    {
+      "source": "^/admin-app/(.*)$",
+      "target": "admin-app/$1",
+      "localDir": "resources",
+      "authenticationType": "xsuaa",
+      "scope": "$XSAPPNAME.Admin"
+    },
+    {
+      "source": "^/adopter-app/(.*)$",
+      "target": "adopter-app/$1",
+      "localDir": "resources",
+      "authenticationType": "xsuaa",
+      "scope": "$XSAPPNAME.User"
     },
     {
       "source": "^/(.*)$",

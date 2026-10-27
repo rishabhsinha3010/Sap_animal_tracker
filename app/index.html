@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<!-- Landing page: CAP serves app/index.html at http://localhost:4004/ (instead of its own index page).
-     One card per app. Each app only works for its role: the other service answers 403. -->
+<!-- Start page (served at / by the app router, and by cds watch locally).
+     No landing page: after login it asks the server which roles the user has (UserService.myRoles)
+     and opens the matching app. Admin -> admin app, User -> adopter app.
+     Only a user without any role sees this page, with a hint how to get access. -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -14,10 +16,7 @@
             --muted: #556b82;
             --border: #e5e9ee;
             --brand: #0070f2;
-            --brand-soft: #e8f2ff;
-            --accent: #188918;
-            --accent-soft: #eaf6ea;
-            --shadow: 0 1px 3px rgba(29, 45, 62, .08), 0 8px 24px rgba(29, 45, 62, .06);
+            --warn: #e76500;
         }
         @media (prefers-color-scheme: dark) {
             :root {
@@ -27,101 +26,73 @@
                 --muted: #a9b4be;
                 --border: #2c343d;
                 --brand: #4db1ff;
-                --brand-soft: #16304a;
-                --accent: #5dc122;
-                --accent-soft: #1d3320;
-                --shadow: 0 1px 3px rgba(0, 0, 0, .4);
+                --warn: #ff8a3d;
             }
         }
         * { box-sizing: border-box; }
         body {
-            margin: 0;
-            min-height: 100vh;
+            margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 16px;
             font-family: "72", "72full", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            display: flex;
-            flex-direction: column;
+            background: var(--bg); color: var(--text);
         }
-        main { flex: 1; width: 100%; max-width: 960px; margin: 0 auto; padding: 64px 16px 32px; }
-        header { text-align: center; margin-bottom: 48px; }
-        .logo { font-size: 48px; line-height: 1; }
-        h1 { font-size: 32px; margin: 16px 0 8px; letter-spacing: -0.02em; }
-        .sub { color: var(--muted); font-size: 17px; margin: 0; }
-        .apps { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
-        a.app {
-            display: flex; flex-direction: column; gap: 12px;
-            padding: 28px; border-radius: 16px; text-decoration: none; color: inherit;
-            background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow);
-            transition: transform .15s ease, border-color .15s ease;
+        .spinner {
+            width: 40px; height: 40px; border-radius: 50%;
+            border: 4px solid var(--border); border-top-color: var(--brand);
+            animation: spin .8s linear infinite; margin: 0 auto 16px;
         }
-        a.app:hover, a.app:focus-visible { transform: translateY(-2px); border-color: var(--brand); outline: none; }
-        .icon { width: 56px; height: 56px; border-radius: 14px; display: grid; place-items: center; font-size: 28px; }
-        .adopter .icon { background: var(--accent-soft); }
-        .admin .icon { background: var(--brand-soft); }
-        .title { font-size: 20px; font-weight: 700; }
-        .desc { color: var(--muted); font-size: 15px; line-height: 1.5; margin: 0; }
-        ul { margin: 4px 0 0; padding-left: 18px; color: var(--muted); font-size: 14px; line-height: 1.7; }
-        .open { margin-top: auto; padding-top: 8px; font-weight: 600; color: var(--brand); }
-        .logins {
-            margin-top: 40px; padding: 16px 20px; border-radius: 12px; border: 1px dashed var(--border);
-            color: var(--muted); font-size: 14px; line-height: 1.7;
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .card {
+            max-width: 520px; padding: 28px; border-radius: 16px; text-align: left;
+            background: var(--surface); border: 1px solid var(--border);
         }
-        code { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1px 6px; font-size: 13px; }
-        footer { text-align: center; color: var(--muted); font-size: 13px; padding: 24px 16px; }
-        footer a { color: var(--brand); }
+        h1 { font-size: 20px; margin: 0 0 12px; color: var(--warn); }
+        p { color: var(--muted); line-height: 1.6; margin: 0 0 12px; }
+        code { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1px 6px; font-size: 13px; }
+        a { color: var(--brand); font-weight: 600; }
+        [hidden] { display: none !important; }
     </style>
 </head>
 <body>
-    <main>
-        <header>
-            <div class="logo" aria-hidden="true">🐾</div>
-            <h1>Animal Adoption Tracker</h1>
-            <p class="sub">Give an animal a home, or keep the shelters running.</p>
-        </header>
+    <div id="loading" style="text-align:center">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Signing you in…</p>
+    </div>
 
-        <div class="apps">
-            <a class="app adopter" href="adopter-app/index.html">
-                <div class="icon" aria-hidden="true">🐶</div>
-                <div class="title">I want to adopt</div>
-                <p class="desc">For adopters and families.</p>
-                <ul>
-                    <li>Browse and filter the animals</li>
-                    <li>Apply and follow your applications</li>
-                    <li>Keep your profile up to date</li>
-                </ul>
-                <span class="open">Open adopter app →</span>
-            </a>
-            <a class="app admin" href="admin-app/index.html">
-                <div class="icon" aria-hidden="true">🛠️</div>
-                <div class="title">Shelter administration</div>
-                <p class="desc">For shelter staff (Admin role).</p>
-                <ul>
-                    <li>Dashboard with KPIs and charts</li>
-                    <li>Review, approve and reject applications</li>
-                    <li>Animals, shelters, health records, inspections</li>
-                </ul>
-                <span class="open">Open admin app →</span>
-            </a>
-        </div>
+    <div id="noRole" class="card" hidden>
+        <h1>No access assigned yet</h1>
+        <p>You are signed in as <code id="who"></code>, but this user has no role for the Animal Adoption Tracker.</p>
+        <p>Ask an administrator to assign one of these role collections in the SAP BTP cockpit
+            (Security → Role Collections), then sign out and in again:</p>
+        <p><code>AnimalAdoption_Admin</code> – shelter staff<br><code>AnimalAdoption_User</code> – adopters</p>
+        <p><a href="do/logout" id="signOut">Sign out</a></p>
+    </div>
 
-        <!-- local test logins (mocked auth in package.json): only shown with `cds watch` (port 4004) -->
-        <div class="logins" id="localLogins" hidden>
-            <strong>Local test logins</strong><br>
-            Admin: <code>admin / admin</code> ·
-            Adopter: <code>asha@example.com / user</code> ·
-            New adopter (no profile yet): <code>other@example.com / user</code>
-        </div>
-    </main>
-    <footer>
-        SAP CAP · Fiori elements · OData V4
-        <!-- behind the app router (XSUAA login): /do/logout ends the session (xs-app.json) -->
-        <span id="signOut" hidden> · <a href="do/logout">Sign out</a></span>
-    </footer>
+    <div id="failed" class="card" hidden>
+        <h1>Something went wrong</h1>
+        <p id="failedText"></p>
+        <p><a href="index.html">Try again</a></p>
+    </div>
+
     <script>
-        // cds watch serves this page on port 4004 (mocked logins); everywhere else the app router does (XSUAA)
+        // cds watch (port 4004) has no app router, so there is no /do/logout there
         const local = location.port === "4004" || location.hostname.startsWith("port4004-");
-        document.getElementById(local ? "localLogins" : "signOut").hidden = false;
+        if (local) document.getElementById("signOut").hidden = true;
+
+        fetch("user/myRoles()", { credentials: "same-origin", headers: { Accept: "application/json" } })
+            .then(async (res) => {
+                if (!res.ok) throw new Error(`The server answered ${res.status} ${res.statusText}.`);
+                const roles = await res.json();
+                if (roles.admin) return location.replace("admin-app/index.html");
+                if (roles.adopter) return location.replace("adopter-app/index.html");
+                document.getElementById("who").textContent = roles.user;
+                document.getElementById("loading").hidden = true;
+                document.getElementById("noRole").hidden = false;
+            })
+            .catch((e) => {
+                document.getElementById("failedText").textContent = e.message;
+                document.getElementById("loading").hidden = true;
+                document.getElementById("failed").hidden = false;
+            });
     </script>
 </body>
 </html>
