@@ -241,8 +241,11 @@ service UserService @(
     // Who am I? The start page (app/index.html) calls this after login and opens the admin app
     // for the Admin role and the adopter app for the User role. Open to every logged-in user,
     // also one without any role, so the page can say "no role assigned" instead of failing.
+    // (name and email come from the XSUAA token; locally, with the mocked users, only user is set)
     type Roles {
         user    : String(255);
+        name    : String(255);
+        email   : String(255);
         admin   : Boolean;
         adopter : Boolean;
     }

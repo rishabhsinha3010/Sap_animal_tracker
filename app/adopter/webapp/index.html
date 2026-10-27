@@ -5,8 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Animal Adoption · Adopter</title>
     <style>
-        html, body, body > div, #container, #container-uiarea {
+        html, body {
             height: 100%;
+            margin: 0;
+        }
+        /* top bar (app/shared/AppShell.js) above the app, the app gets the rest of the height */
+        #shellbar {
+            height: 3.25rem;
+        }
+        #app > div, #container, #container-uiarea {
+            height: 100%;
+        }
+        #app {
+            height: calc(100% - 3.25rem);
         }
     </style>
     <script
@@ -14,7 +25,8 @@
         src="https://sapui5.hana.ondemand.com/1.153.0/resources/sap-ui-core.js"
         data-sap-ui-theme="sap_horizon"
         data-sap-ui-resource-roots='{
-            "animaladoption.adopter": "./"
+            "animaladoption.adopter": "./",
+            "animaladoption.shared": "../shared/"
         }'
         data-sap-ui-on-init="module:sap/ui/core/ComponentSupport"
         data-sap-ui-compat-version="edge"
@@ -23,6 +35,8 @@
     ></script>
 </head>
 <body class="sapUiBody sapUiSizeCompact" id="content">
+    <div id="shellbar"></div>
+    <div id="app">
     <div
         data-sap-ui-component
         data-name="animaladoption.adopter"
@@ -30,5 +44,6 @@
         data-settings='{"id" : "animaladoption.adopter"}'
         data-handle-validation="true"
     ></div>
+    </div>
 </body>
 </html>

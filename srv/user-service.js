@@ -12,11 +12,17 @@ const { nextId } = require('./lib/ids');
 module.exports = cds.service.impl(async function () {
 
     // roles of the logged-in person (XSUAA role collections AnimalAdoption_Admin / AnimalAdoption_User)
-    this.on('myRoles', (req) => ({
-        user: req.user.id,
-        admin: req.user.is('Admin'),
-        adopter: req.user.is('User')
-    }));
+    // (also used by the top bar of both apps for the account menu)
+    this.on('myRoles', (req) => {
+        const { givenName, familyName, email } = req.user.attr || {};
+        return {
+            user: req.user.id,
+            name: [givenName, familyName].filter(Boolean).join(' ') || req.user.id,
+            email: email || (req.user.id.includes('@') ? req.user.id : null),
+            admin: req.user.is('Admin'),
+            adopter: req.user.is('User')
+        };
+    });
 
     // the real tables (not the service projections), so this code can write to fields
     // that are @readonly for outside callers, like status

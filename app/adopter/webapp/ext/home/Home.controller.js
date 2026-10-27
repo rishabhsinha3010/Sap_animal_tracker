@@ -18,6 +18,10 @@ sap.ui.define([
             this.getView().setModel(new JSONModel({ busy: true, isAdopter: true, hasProfile: true, greeting: "", applications: [], animals: [] }), "home");
             // reload every time the page is shown, so new applications appear after Apply
             this.getAppComponent().getRouter().getRoute("Home").attachPatternMatched(this._load, this);
+            // "My Profile" in the top bar (app/shared/AppShell.js) is handled here, where the edit flow is
+            const oComponent = this.getAppComponent();
+            oComponent._homeReady = true;
+            oComponent.getEventBus().subscribe("animaladoption", "openProfile", this.onProfile, this);
         },
 
         onBrowse: function () {
@@ -43,10 +47,11 @@ sap.ui.define([
         onProfile: async function () {
             const oModel = this.getView().getModel();
             // IsActiveEntity eq true = only the saved profile, not an unsaved draft copy
-            const oList = oModel.bindList("/Users", undefined, undefined, undefined, { $filter: "IsActiveEntity eq true" });
+            const oList = oModel.bindList("/Users", undefined, undefined, undefined, { $filter: "IsActiveEntity eq true", $select: "ID" });
             const aContexts = await oList.requestContexts(0, 1);
             if (aContexts.length) {
-                this.routing.navigateToContext(aContexts[0]);
+                const sID = aContexts[0].getProperty("ID");
+                this.getAppComponent().getRouter().navTo("UsersObjectPage", { key: `ID=${sID},IsActiveEntity=true` });
             } else {
                 // creates a draft and opens it as an empty form; Save runs the registration checks
                 this.editFlow.createDocument("/Users", { creationMode: "NewPage" });
@@ -70,6 +75,13 @@ sap.ui.define([
         },
 
         _load: async function () {
+            // the top bar asked for My Profile before this page existed
+            const oComponent = this.getAppComponent();
+            if (oComponent._openProfileOnHome) {
+                oComponent._openProfileOnHome = false;
+                // one tick later: the page's edit flow is ready only after it has been displayed
+                setTimeout(() => this.onProfile(), 0);
+            }
             const oHome = this.getView().getModel("home");
             const oBundle = this.getAppComponent().getModel("i18n").getResourceBundle();
             oHome.setProperty("/busy", true);
