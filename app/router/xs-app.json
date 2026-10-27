@@ -3,9 +3,22 @@
   "authenticationMethod": "route",
   "logout": {
     "logoutEndpoint": "/do/logout",
-    "logoutPage": "/index.html"
+    "logoutPage": "/logged-out.html"
   },
   "routes": [
+    {
+      "source": "^/logged-out\\.html$",
+      "target": "logged-out.html",
+      "localDir": "resources",
+      "authenticationType": "none",
+      "cacheControl": "no-cache, no-store, must-revalidate"
+    },
+    {
+      "source": "^/shared/logo\\.svg$",
+      "target": "shared/logo.svg",
+      "localDir": "resources",
+      "authenticationType": "none"
+    },
     {
       "source": "^/admin/(.*)$",
       "target": "/admin/$1",
@@ -34,6 +47,13 @@
       "localDir": "resources",
       "authenticationType": "xsuaa",
       "scope": "$XSAPPNAME.User"
+    },
+    {
+      "source": "^/(index\\.html)?$",
+      "target": "index.html",
+      "localDir": "resources",
+      "authenticationType": "xsuaa",
+      "cacheControl": "no-cache, no-store, must-revalidate"
     },
     {
       "source": "^/(.*)$",
