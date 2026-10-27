@@ -44,7 +44,11 @@ annotate db.Animals with {
     adoptionFee       @title: 'Adoption Fee'  @Measures.ISOCurrency: 'INR';
     description       @title: 'Description'  @UI.MultiLineText;
     // show the value as a picture, not as text
-    photo             @title: 'Photo'  @UI.IsImageURL;
+    photo             @title: 'Photo Link (URL)';   // a text field to paste a link; photoUrl shows the picture
+    image             @title: 'Upload Photo (JPG, PNG)';
+    imageType         @UI.Hidden;
+    imageName         @UI.Hidden;
+    photoUrl          @title: 'Photo'  @UI.IsImageURL;
     // helper fields for the colours: never shown on their own
     healthCriticality   @UI.Hidden;
     adoptionCriticality @UI.Hidden;
@@ -130,6 +134,13 @@ annotate db.Inspections with {
     resultCriticality  @UI.Hidden;
 };
 
+// technical keys (UUIDs): never shown, e.g. as the first column of the Animal / Shelter / Adoption pickers
+annotate db.Shelters             with { ID @UI.Hidden; };
+annotate db.Animals              with { ID @UI.Hidden; };
+annotate db.Users                with { ID @UI.Hidden; };
+annotate db.AdoptionApplications with { ID @UI.Hidden; };
+annotate db.Adoptions            with { ID @UI.Hidden; };
+
 // every document table shows the same columns (all four document entities share the Attachment aspect)
 annotate db.ApplicationDocuments with @(UI.LineItem: [
     {Value: fileName,     Label: 'File'},
@@ -153,3 +164,117 @@ annotate db.InspectionDocuments with @(UI.LineItem: [
     {$Type: 'UI.DataFieldWithUrl', Value: url, Url: url, Label: 'Link'}
 ]);
 
+// ---------------------------------------------------------------------
+// dropdowns for the fields with a fixed list of values (the enum types in db/common.cds).
+// The values come from the CodeLists entity (db/schema.cds), filtered by the list name.
+// ---------------------------------------------------------------------
+annotate db.Animals with {
+    gender @Common.ValueListWithFixedValues @Common.ValueList: {
+        CollectionPath: 'CodeLists',
+        Parameters    : [
+            {$Type: 'Common.ValueListParameterConstant', ValueListProperty: 'list', Constant: 'Gender'},
+            {$Type: 'Common.ValueListParameterInOut', LocalDataProperty: gender, ValueListProperty: 'code'}
+        ]
+    };
+    healthStatus @Common.ValueListWithFixedValues @Common.ValueList: {
+        CollectionPath: 'CodeLists',
+        Parameters    : [
+            {$Type: 'Common.ValueListParameterConstant', ValueListProperty: 'list', Constant: 'HealthStatus'},
+            {$Type: 'Common.ValueListParameterInOut', LocalDataProperty: healthStatus, ValueListProperty: 'code'}
+        ]
+    };
+    vaccinationStatus @Common.ValueListWithFixedValues @Common.ValueList: {
+        CollectionPath: 'CodeLists',
+        Parameters    : [
+            {$Type: 'Common.ValueListParameterConstant', ValueListProperty: 'list', Constant: 'VaccinationStatus'},
+            {$Type: 'Common.ValueListParameterInOut', LocalDataProperty: vaccinationStatus, ValueListProperty: 'code'}
+        ]
+    };
+    adoptionStatus @Common.ValueListWithFixedValues @Common.ValueList: {
+        CollectionPath: 'CodeLists',
+        Parameters    : [
+            {$Type: 'Common.ValueListParameterConstant', ValueListProperty: 'list', Constant: 'AdoptionStatus'},
+            {$Type: 'Common.ValueListParameterInOut', LocalDataProperty: adoptionStatus, ValueListProperty: 'code'}
+        ]
+    };
+};
+annotate db.Shelters with {
+    status @Common.ValueListWithFixedValues @Common.ValueList: {
+        CollectionPath: 'CodeLists',
+        Parameters    : [
+            {$Type: 'Common.ValueListParameterConstant', ValueListProperty: 'list', Constant: 'ShelterStatus'},
+            {$Type: 'Common.ValueListParameterInOut', LocalDataProperty: status, ValueListProperty: 'code'}
+        ]
+    };
+};
+annotate db.Users with {
+    status @Common.ValueListWithFixedValues @Common.ValueList: {
+        CollectionPath: 'CodeLists',
+        Parameters    : [
+            {$Type: 'Common.ValueListParameterConstant', ValueListProperty: 'list', Constant: 'AccountStatus'},
+            {$Type: 'Common.ValueListParameterInOut', LocalDataProperty: status, ValueListProperty: 'code'}
+        ]
+    };
+};
+annotate db.AdoptionApplications with {
+    status @Common.ValueListWithFixedValues @Common.ValueList: {
+        CollectionPath: 'CodeLists',
+        Parameters    : [
+            {$Type: 'Common.ValueListParameterConstant', ValueListProperty: 'list', Constant: 'ApplicationStatus'},
+            {$Type: 'Common.ValueListParameterInOut', LocalDataProperty: status, ValueListProperty: 'code'}
+        ]
+    };
+    housingType @Common.ValueListWithFixedValues @Common.ValueList: {
+        CollectionPath: 'CodeLists',
+        Parameters    : [
+            {$Type: 'Common.ValueListParameterConstant', ValueListProperty: 'list', Constant: 'HousingType'},
+            {$Type: 'Common.ValueListParameterInOut', LocalDataProperty: housingType, ValueListProperty: 'code'}
+        ]
+    };
+};
+annotate db.Adoptions with {
+    status @Common.ValueListWithFixedValues @Common.ValueList: {
+        CollectionPath: 'CodeLists',
+        Parameters    : [
+            {$Type: 'Common.ValueListParameterConstant', ValueListProperty: 'list', Constant: 'AdoptionRecordStatus'},
+            {$Type: 'Common.ValueListParameterInOut', LocalDataProperty: status, ValueListProperty: 'code'}
+        ]
+    };
+};
+annotate db.HealthRecords with {
+    healthStatus @Common.ValueListWithFixedValues @Common.ValueList: {
+        CollectionPath: 'CodeLists',
+        Parameters    : [
+            {$Type: 'Common.ValueListParameterConstant', ValueListProperty: 'list', Constant: 'HealthStatus'},
+            {$Type: 'Common.ValueListParameterInOut', LocalDataProperty: healthStatus, ValueListProperty: 'code'}
+        ]
+    };
+    vaccinationStatus @Common.ValueListWithFixedValues @Common.ValueList: {
+        CollectionPath: 'CodeLists',
+        Parameters    : [
+            {$Type: 'Common.ValueListParameterConstant', ValueListProperty: 'list', Constant: 'VaccinationStatus'},
+            {$Type: 'Common.ValueListParameterInOut', LocalDataProperty: vaccinationStatus, ValueListProperty: 'code'}
+        ]
+    };
+};
+annotate db.Inspections with {
+    inspectionType @Common.ValueListWithFixedValues @Common.ValueList: {
+        CollectionPath: 'CodeLists',
+        Parameters    : [
+            {$Type: 'Common.ValueListParameterConstant', ValueListProperty: 'list', Constant: 'InspectionType'},
+            {$Type: 'Common.ValueListParameterInOut', LocalDataProperty: inspectionType, ValueListProperty: 'code'}
+        ]
+    };
+    result @Common.ValueListWithFixedValues @Common.ValueList: {
+        CollectionPath: 'CodeLists',
+        Parameters    : [
+            {$Type: 'Common.ValueListParameterConstant', ValueListProperty: 'list', Constant: 'InspectionResult'},
+            {$Type: 'Common.ValueListParameterInOut', LocalDataProperty: result, ValueListProperty: 'code'}
+        ]
+    };
+};
+annotate db.CodeLists with {
+    code @title: 'Value';
+    list @UI.Hidden;
+    sortOrder @UI.Hidden;
+};

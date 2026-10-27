@@ -1,0 +1,50 @@
+list,code,sortOrder
+Gender,Male,1
+Gender,Female,2
+Gender,Unknown,3
+HealthStatus,Healthy,1
+HealthStatus,Sick,2
+HealthStatus,Injured,3
+HealthStatus,Under Treatment,4
+HealthStatus,Critical,5
+VaccinationStatus,Vaccinated,1
+VaccinationStatus,Partially Vaccinated,2
+VaccinationStatus,Not Vaccinated,3
+ApplicationStatus,Submitted,1
+ApplicationStatus,Under Review,2
+ApplicationStatus,Approved,3
+ApplicationStatus,Rejected,4
+ApplicationStatus,Withdrawn,5
+AdoptionRecordStatus,Active,1
+AdoptionRecordStatus,Completed,2
+AdoptionRecordStatus,Cancelled,3
+AdoptionStatus,Available,1
+AdoptionStatus,Reserved,2
+AdoptionStatus,Adopted,3
+AdoptionStatus,Under Treatment,4
+InspectionType,Initial,1
+InspectionType,Follow-up,2
+InspectionType,Routine,3
+InspectionResult,Pending,1
+InspectionResult,Validated,2
+InspectionResult,Follow-up Required,3
+InspectionResult,Failed,4
+HousingType,Apartment,1
+HousingType,Independent House,2
+HousingType,Farm,3
+HousingType,Other,4
+ShelterStatus,Active,1
+ShelterStatus,Inactive,2
+ShelterStatus,Full,3
+UserRole,Admin,1
+UserRole,User,2
+AccountStatus,Active,1
+AccountStatus,Inactive,2
+AccountStatus,Blocked,3
+DocumentType,Adoption Agreement,1
+DocumentType,Adoption Certificate,2
+DocumentType,Approval Letter,3
+DocumentType,Health Certificate,4
+DocumentType,Medical Report,5
+DocumentType,Inspection Report,6
+DocumentType,Supporting Document,7

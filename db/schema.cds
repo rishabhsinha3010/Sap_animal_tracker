@@ -50,9 +50,20 @@ entity Animals : common.Base {
     adoptionStatus    : common.AdoptionStatus    default 'Available';
     adoptionEligible  : Boolean default false;
     adoptionFee       : Decimal(10, 2) @assert.range: [0, 999999];
-    // Cloudinary URL of the photo (String(1000) because Cloudinary URLs with transformations get long;
-    // the sample data uses small data-URI emoji pictures instead)
+    // photo as a link, e.g. a Cloudinary URL (String(1000) because Cloudinary URLs with transformations get long)
     photo             : String(1000);
+    // photo uploaded in the admin app (stored in the database). @Core.MediaType makes it a stream:
+    // Fiori shows an upload control, and GET .../Animals(ID)/image returns the picture
+    image             : LargeBinary @Core.MediaType: imageType @Core.ContentDisposition.Filename: imageName
+                                    @Core.AcceptableMediaTypes: ['image/jpeg', 'image/png'];
+    imageType         : String(100) @Core.IsMediaType;
+    imageName         : String(255);
+    // what the apps show: the uploaded picture if there is one, otherwise the photo link.
+    // (read through the adopter service, which every logged-in user may read; calculated, never stored)
+    photoUrl          : String(1100) = case
+                                           when imageType is not null then '/user/Animals(' || ID || ')/image'
+                                           else photo
+                                       end;
     description       : String(500);
     // Association (not Composition): with draft, a Composition would make health records part of the
     // animal's draft, so they could only be edited inside an animal. Health records get their own app.
@@ -205,3 +216,12 @@ entity InspectionDocuments : common.Attachment {
     inspection : Association to Inspections;
 }
 
+// ---------------- Code lists (dropdown values) ----------------
+// One row per allowed value of the enum types in db/common.cds (list = type name, e.g. 'HealthStatus').
+// The Fiori apps read it for their dropdowns (Common.ValueList in app/common.cds).
+// Rows: db/data/AnimalAdoption.db-CodeLists.csv - keep them in line when an enum in db/common.cds changes.
+entity CodeLists {
+    key list      : String(30);
+    key code      : String(30);
+        sortOrder : Integer;
+}

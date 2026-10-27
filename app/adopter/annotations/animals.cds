@@ -12,7 +12,7 @@ annotate service.Animals with @(
         TypeNamePlural: 'Animals',
         Title         : {Value: name},
         Description   : {Value: breed},
-        ImageUrl      : photo,
+        ImageUrl      : photoUrl,
         TypeImageUrl  : 'sap-icon://heart'
     },
     UI.SelectionFields: [species, breed, shelter_ID, adoptionStatus],
@@ -24,7 +24,7 @@ annotate service.Animals with @(
     UI.LineItem: [
         // Apply in the table toolbar: select an animal, press Apply, fill the dialog
         {$Type: 'UI.DataFieldForAction', Action: 'UserService.apply', Label: 'Apply to Adopt'},
-        {Value: photo, ![@HTML5.CssDefaults]: {width: '5rem'}},
+        {Value: photoUrl, ![@HTML5.CssDefaults]: {width: '5rem'}},
         {Value: name, ![@HTML5.CssDefaults]: {width: '9rem'}},
         {Value: species, ![@HTML5.CssDefaults]: {width: '7rem'}},
         {Value: breed, ![@HTML5.CssDefaults]: {width: '12rem'}},

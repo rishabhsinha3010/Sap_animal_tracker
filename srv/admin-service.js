@@ -179,6 +179,21 @@ module.exports = cds.service.impl(async function () {
         req.data.animalID = await nextId(Animals, 'animalID', 'ANM-');
     });
 
+    // photo upload (Fiori puts the file into the draft: UPDATE Animals.drafts with image + imageType)
+    // only JPG / PNG, at most 10 MB (file rules in requirements.txt)
+    const PHOTO_TYPES = ['image/jpeg', 'image/png'];
+    const PHOTO_MAX_BYTES = 10 * 1024 * 1024;
+    this.before('UPDATE', ['Animals', 'Animals.drafts'], (req) => {
+        if (!req.data.image) return;   // no upload, or the photo is being removed
+        const type = (req.data.imageType || req.headers['content-type'] || '').split(';')[0].trim();
+        if (!PHOTO_TYPES.includes(type)) {
+            return req.reject(415, `The photo must be a JPG or PNG file (got ${type || 'an unknown type'})`);
+        }
+        if (Number(req.headers['content-length']) > PHOTO_MAX_BYTES) {
+            return req.reject(413, 'The photo is larger than 10 MB');
+        }
+    });
+
     // after it is saved: recount the shelter
     this.after('CREATE', 'Animals', async (data, req) => {
         const animal = await SELECT.one.from(Animals).where({ ID: savedID(data, req) });

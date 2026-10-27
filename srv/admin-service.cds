@@ -66,6 +66,10 @@ service AdminService @(
     entity HealthDocuments      as projection on db.HealthDocuments;
     entity InspectionDocuments  as projection on db.InspectionDocuments;
 
+    // values for the dropdowns (gender, health status, ...): read-only, see db/schema.cds
+    @readonly
+    entity CodeLists            as projection on db.CodeLists;
+
     // ---------- dashboard (all read-only views) ----------
     // A view ("select from") is calculated every time it is read, so the numbers are never out of date.
     // @cds.redirection.target: false -> without it the compiler cannot tell which of two entities
@@ -168,6 +172,9 @@ annotate AdminService.AdoptionApplications with {
 // the buttons are only enabled when the application is in the right status:
 // Start Review for a Submitted one, Approve and Reject for one that is Under Review
 // (the JS handlers check this too, so the rule also holds for direct API calls)
+annotate AdminService.HealthRecords actions {
+    markRecovered     @Core.OperationAvailable : in.IsActiveEntity;
+};
 annotate AdminService.AdoptionApplications actions {
     startReview       @Core.OperationAvailable : in.canStartReview;
     approve           @Core.OperationAvailable : in.canDecide;

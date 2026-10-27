@@ -10,15 +10,25 @@
     <Page showHeader="false" class="aaHome">
         <content>
             <VBox busy="{home>/busy}" busyIndicatorDelay="0">
-                <!-- welcome banner -->
-                <VBox class="aaHero">
-                    <Title text="{home>/greeting}" level="H1" wrapping="true" class="aaHeroTitle"/>
-                    <Text text="{i18n>heroText}" class="aaHeroText"/>
-                    <HBox wrap="Wrap" class="sapUiSmallMarginTop">
-                        <Button text="{i18n>browseAnimals}" icon="sap-icon://search" type="Emphasized" press=".onBrowse" class="sapUiTinyMarginEnd sapUiTinyMarginBottom"/>
-                        <Button text="{i18n>myApplications}" icon="sap-icon://document-text" press=".onApplications" visible="{home>/isAdopter}" class="sapUiTinyMarginEnd sapUiTinyMarginBottom"/>
-                        <Button text="{= ${home>/hasProfile} ? ${i18n>myProfile} : ${i18n>register} }" icon="sap-icon://person-placeholder" visible="{home>/isAdopter}"
-                            press=".onProfile" class="sapUiTinyMarginEnd sapUiTinyMarginBottom"/>
+                <!-- welcome banner: text and actions on the left, decorative paws on the right (css/style.css) -->
+                <VBox class="aaHeroWrap">
+                    <HBox class="aaHero" alignItems="Center" justifyContent="SpaceBetween">
+                        <VBox class="aaHeroContent">
+                            <Text text="{i18n>heroEyebrow}" class="aaHeroEyebrow"/>
+                            <Title text="{home>/greeting}" level="H1" wrapping="true" class="aaHeroTitle"/>
+                            <Text text="{i18n>heroText}" class="aaHeroText"/>
+                            <HBox wrap="Wrap" alignItems="Center" class="aaHeroActions">
+                                <Button text="{i18n>browseAnimals}" icon="sap-icon://search" press=".onBrowse" class="aaHeroPrimary"/>
+                                <Button text="{i18n>myApplications}" icon="sap-icon://document-text" press=".onApplications" visible="{home>/isAdopter}" class="aaHeroGhost"/>
+                                <Button text="{= ${home>/hasProfile} ? ${i18n>myProfile} : ${i18n>register} }" icon="sap-icon://person-placeholder" visible="{home>/isAdopter}"
+                                    press=".onProfile" class="aaHeroGhost"/>
+                            </HBox>
+                        </VBox>
+                        <!-- how many animals are waiting right now -->
+                        <VBox class="aaHeroStat" alignItems="Center" visible="{= ${home>/availableCount} > 0 }">
+                            <Text text="{home>/availableCount}" class="aaHeroStatValue"/>
+                            <Text text="{i18n>heroStatLabel}" class="aaHeroStatLabel" textAlign="Center"/>
+                        </VBox>
                     </HBox>
                 </VBox>
 

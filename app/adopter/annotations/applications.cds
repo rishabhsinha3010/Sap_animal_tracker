@@ -90,9 +90,23 @@ annotate service.Inspections with @(UI.LineItem: [
 annotate service.Animals actions {
     apply(
         reasonForAdoption @title: 'Why do you want to adopt?' @UI.MultiLineText,
-        housingType       @title: 'Housing Type',
+        housingType       @title: 'Housing Type' @Common.ValueListWithFixedValues @Common.ValueList: {
+            CollectionPath: 'CodeLists',
+            Parameters    : [
+                {$Type: 'Common.ValueListParameterConstant', ValueListProperty: 'list', Constant: 'HousingType'},
+                {$Type: 'Common.ValueListParameterInOut', LocalDataProperty: housingType, ValueListProperty: 'code'}
+            ]
+        },
         housingDetails    @title: 'Housing Details' @UI.MultiLineText,
         hasOtherPets      @title: 'Other Pets at Home',
         petExperience     @title: 'Pet Experience' @UI.MultiLineText
     );
+};
+
+// Withdraw changes the status: reload it (and the history) on the page
+annotate service.AdoptionApplications actions {
+    withdraw @Common.SideEffects: {
+        TargetProperties: ['in/status', 'in/statusCriticality', 'in/canWithdraw'],
+        TargetEntities  : ['in/history']
+    };
 };

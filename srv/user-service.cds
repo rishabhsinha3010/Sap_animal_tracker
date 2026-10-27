@@ -144,6 +144,10 @@ service UserService @(
             age,
             color,
             photo,
+            photoUrl,   // uploaded picture or photo link (db/schema.cds)
+            image,      // the uploaded picture itself, read through photoUrl
+            imageType,
+            imageName,
             description,
             healthStatus,
             vaccinationStatus,
@@ -237,6 +241,10 @@ service UserService @(
     entity HealthDocuments as projection on db.HealthDocuments {
         ID, healthRecord, fileName, mediaType, fileSize, documentType, documentId, url, content
     };
+
+    // values for the dropdowns (gender, health status, ...): read-only, see db/schema.cds
+    @readonly
+    entity CodeLists            as projection on db.CodeLists;
 
     // Who am I? The start page (app/index.html) calls this after login and opens the admin app
     // for the Admin role and the adopter app for the User role. Open to every logged-in user,

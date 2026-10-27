@@ -67,7 +67,9 @@ sap.ui.define([
             try {
                 const oList = oModel.bindList(sPath, undefined, undefined, undefined, { ...mParameters, $$groupId: "$direct" });
                 const aContexts = await oList.requestContexts(0, iMax);
-                return aContexts.map((oContext) => oContext.getObject());
+                const aRows = aContexts.map((oContext) => oContext.getObject());
+                aRows.total = oList.getCount(); // only known when $count is requested
+                return aRows;
             } catch (e) {
                 Log.error(`Home page: reading ${sPath} failed`, e);
                 return null;
@@ -90,14 +92,15 @@ sap.ui.define([
                     this._rows("/Users", { $select: "ID,firstName", $filter: "IsActiveEntity eq true" }, 1),
                     this._rows("/AdoptionApplications", {
                         $select: "ID,applicationID,applicationDate,status",
-                        $expand: "animal($select=ID,name,photo)",
+                        $expand: "animal($select=ID,name,photoUrl)",
                         $orderby: "applicationDate desc"
                     }, 3),
                     this._rows("/Animals", {
-                        $select: "ID,name,breed,gender,age,photo,adoptionFee",
+                        $select: "ID,name,breed,gender,age,photoUrl,adoptionFee",
                         $expand: "shelter($select=ID,shelterName,city)",
                         $filter: "adoptionStatus eq 'Available'",
-                        $orderby: "name"
+                        $orderby: "name",
+                        $count: true
                     }, 12)
                 ]);
 
@@ -115,14 +118,15 @@ sap.ui.define([
                     status: a.status,
                     state: STATUS_STATE[a.status] || "None",
                     animalName: a.animal ? a.animal.name : "",
-                    photo: (a.animal && a.animal.photo) || "sap-icon://heart"
+                    photo: (a.animal && a.animal.photoUrl) || "sap-icon://heart"
                 })));
+                oHome.setProperty("/availableCount", aAnimals ? (aAnimals.total ?? aAnimals.length) : 0);
                 oHome.setProperty("/animals", (aAnimals || []).map((a) => ({
                     ID: a.ID,
                     name: a.name,
                     breed: a.breed,
                     gender: a.gender,
-                    photo: a.photo,
+                    photo: a.photoUrl || "sap-icon://heart",
                     ageText: oBundle.getText(a.age === 1 ? "ageYear" : "ageYears", [a.age]),
                     fee: Number(a.adoptionFee) ? "₹ " + oFee.format(Number(a.adoptionFee)) : oBundle.getText("free"),
                     shelter: a.shelter ? `${a.shelter.shelterName}, ${a.shelter.city}` : ""
