@@ -1,3 +1,8 @@
-ID,applicationID,animal_ID,applicant_ID,applicationDate,reasonForAdoption,status
-d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1,APP-0001,aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,99999999-9999-9999-9999-999999999992,2026-10-01,I have a house with a garden,Submitted
-d2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2,APP-0002,bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb,99999999-9999-9999-9999-999999999992,2026-10-02,I love cats,Submitted
+ID,applicationID,animal_ID,applicant_ID,applicationDate,reasonForAdoption,housingType,hasOtherPets,petExperience,status,reviewedBy,reviewedAt,staffRemarks,rejectionReason
+dddddddd-0000-0000-0000-000000000001,APP-0001,aaaaaaaa-0000-0000-0000-000000000001,99999999-0000-0000-0000-000000000002,2026-10-01,I have a house with a garden,Independent House,false,Grew up with dogs,Submitted,,,,
+dddddddd-0000-0000-0000-000000000002,APP-0002,aaaaaaaa-0000-0000-0000-000000000003,99999999-0000-0000-0000-000000000003,2026-10-03,Looking for a running partner,Independent House,false,Owned a German Shepherd before,Under Review,admin,2026-10-05T10:00:00Z,Home visit to be scheduled,
+dddddddd-0000-0000-0000-000000000003,APP-0003,aaaaaaaa-0000-0000-0000-000000000002,99999999-0000-0000-0000-000000000002,2026-09-05,Want a gentle dog for my family,Independent House,false,Had a Labrador for 8 years,Approved,admin,2026-09-14T11:30:00Z,Great match,
+dddddddd-0000-0000-0000-000000000004,APP-0004,aaaaaaaa-0000-0000-0000-000000000011,99999999-0000-0000-0000-000000000002,2026-09-20,My kids love birds,Apartment,true,No bird experience,Rejected,admin,2026-09-24T09:15:00Z,,Existing cat at home is a risk for the bird
+dddddddd-0000-0000-0000-000000000005,APP-0005,aaaaaaaa-0000-0000-0000-000000000006,99999999-0000-0000-0000-000000000004,2026-10-05,Company for my mother,Apartment,false,Had cats for 10 years,Withdrawn,,,,
+dddddddd-0000-0000-0000-000000000006,APP-0006,aaaaaaaa-0000-0000-0000-000000000005,99999999-0000-0000-0000-000000000004,2026-10-12,"Quiet home, I work from home",Apartment,false,Fostered cats,Submitted,,,,
+dddddddd-0000-0000-0000-000000000007,APP-0007,aaaaaaaa-0000-0000-0000-000000000016,99999999-0000-0000-0000-000000000003,2026-08-02,We have a farm pond and other ducks,Farm,true,Keeps poultry,Approved,admin,2026-08-09T09:00:00Z,Farm checked by phone,

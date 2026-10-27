@@ -109,6 +109,7 @@ aspect Attachment : Base {
   fileSize     : Integer;
   documentType : DocumentType;
   documentId   : String(255);   // object id in SAP Document Management Service
-  url          : String(1000);
+                                // (with Cloudinary this holds the public_id, needed to delete or replace the file)
+  url          : String(1000);  // Cloudinary secure_url when the file lives there instead of in content
   note         : String(500);
 }

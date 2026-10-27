@@ -1,0 +1,3 @@
+ID,adoptionID,application_ID,animal_ID,adoptionDate,status,completedBy,remarks
+ffffffff-0000-0000-0000-000000000001,ADP-0001,dddddddd-0000-0000-0000-000000000007,aaaaaaaa-0000-0000-0000-000000000016,2026-08-10,Completed,admin,Settled in with the other ducks
+ffffffff-0000-0000-0000-000000000002,ADP-0002,dddddddd-0000-0000-0000-000000000003,aaaaaaaa-0000-0000-0000-000000000002,2026-09-15,Active,,Picked up by adopter

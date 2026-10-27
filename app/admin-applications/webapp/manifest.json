@@ -49,7 +49,8 @@
       "libs": {
         "sap.m": {},
         "sap.ui.core": {},
-        "sap.fe.templates": {}
+        "sap.fe.templates": {},
+        "sap.f": {}
       }
     },
     "contentDensities": {
@@ -85,6 +86,11 @@
       "routes": [
         {
           "pattern": ":?query:",
+          "name": "Dashboard",
+          "target": "Dashboard"
+        },
+        {
+          "pattern": "AdoptionApplications:?query:",
           "name": "AdoptionApplicationsList",
           "target": "AdoptionApplicationsList"
         },
@@ -92,9 +98,60 @@
           "pattern": "AdoptionApplications({key}):?query:",
           "name": "AdoptionApplicationsObjectPage",
           "target": "AdoptionApplicationsObjectPage"
+        },
+        {
+          "pattern": "Animals:?query:",
+          "name": "AnimalsList",
+          "target": "AnimalsList"
+        },
+        {
+          "pattern": "Animals({key}):?query:",
+          "name": "AnimalsObjectPage",
+          "target": "AnimalsObjectPage"
+        },
+        {
+          "pattern": "Shelters:?query:",
+          "name": "SheltersList",
+          "target": "SheltersList"
+        },
+        {
+          "pattern": "Shelters({key}):?query:",
+          "name": "SheltersObjectPage",
+          "target": "SheltersObjectPage"
+        },
+        {
+          "pattern": "HealthRecords:?query:",
+          "name": "HealthRecordsList",
+          "target": "HealthRecordsList"
+        },
+        {
+          "pattern": "HealthRecords({key}):?query:",
+          "name": "HealthRecordsObjectPage",
+          "target": "HealthRecordsObjectPage"
+        },
+        {
+          "pattern": "Inspections:?query:",
+          "name": "InspectionsList",
+          "target": "InspectionsList"
+        },
+        {
+          "pattern": "Inspections({key}):?query:",
+          "name": "InspectionsObjectPage",
+          "target": "InspectionsObjectPage"
         }
       ],
       "targets": {
+        "Dashboard": {
+          "type": "Component",
+          "id": "Dashboard",
+          "name": "sap.fe.core.fpm",
+          "options": {
+            "settings": {
+              "viewName": "adminapplications.ext.dashboard.Dashboard",
+              "contextPath": "/AnimalSummary"
+            }
+          }
+        },
         "AdoptionApplicationsList": {
           "type": "Component",
           "id": "AdoptionApplicationsList",
@@ -128,6 +185,150 @@
             "settings": {
               "editableHeaderContent": false,
               "contextPath": "/AdoptionApplications"
+            }
+          }
+        },
+        "AnimalsList": {
+          "type": "Component",
+          "id": "AnimalsList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "contextPath": "/Animals",
+              "variantManagement": "Page",
+              "navigation": {
+                "Animals": {
+                  "detail": {
+                    "route": "AnimalsObjectPage"
+                  }
+                }
+              },
+              "controlConfiguration": {
+                "@com.sap.vocabularies.UI.v1.LineItem": {
+                  "tableSettings": {
+                    "type": "ResponsiveTable"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "AnimalsObjectPage": {
+          "type": "Component",
+          "id": "AnimalsObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/Animals"
+            }
+          }
+        },
+        "SheltersList": {
+          "type": "Component",
+          "id": "SheltersList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "contextPath": "/Shelters",
+              "variantManagement": "Page",
+              "navigation": {
+                "Shelters": {
+                  "detail": {
+                    "route": "SheltersObjectPage"
+                  }
+                }
+              },
+              "controlConfiguration": {
+                "@com.sap.vocabularies.UI.v1.LineItem": {
+                  "tableSettings": {
+                    "type": "ResponsiveTable"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "SheltersObjectPage": {
+          "type": "Component",
+          "id": "SheltersObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/Shelters"
+            }
+          }
+        },
+        "HealthRecordsList": {
+          "type": "Component",
+          "id": "HealthRecordsList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "contextPath": "/HealthRecords",
+              "variantManagement": "Page",
+              "navigation": {
+                "HealthRecords": {
+                  "detail": {
+                    "route": "HealthRecordsObjectPage"
+                  }
+                }
+              },
+              "controlConfiguration": {
+                "@com.sap.vocabularies.UI.v1.LineItem": {
+                  "tableSettings": {
+                    "type": "ResponsiveTable"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "HealthRecordsObjectPage": {
+          "type": "Component",
+          "id": "HealthRecordsObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/HealthRecords"
+            }
+          }
+        },
+        "InspectionsList": {
+          "type": "Component",
+          "id": "InspectionsList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "contextPath": "/Inspections",
+              "variantManagement": "Page",
+              "navigation": {
+                "Inspections": {
+                  "detail": {
+                    "route": "InspectionsObjectPage"
+                  }
+                }
+              },
+              "controlConfiguration": {
+                "@com.sap.vocabularies.UI.v1.LineItem": {
+                  "tableSettings": {
+                    "type": "ResponsiveTable"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "InspectionsObjectPage": {
+          "type": "Component",
+          "id": "InspectionsObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/Inspections"
             }
           }
         }

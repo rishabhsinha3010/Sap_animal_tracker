@@ -1,5 +1,10 @@
 // SELECT, UPDATE, INSERT, req.reject and so on present in sap/cds
 const cds = require('@sap/cds');
+// take the query builders from cds.ql, not the globals: the Fiori UI plugin loads a second copy
+// of @sap/cds, and then the global SELECT/INSERT/UPDATE belong to the wrong copy
+const { SELECT, INSERT, UPDATE } = cds.ql;
+// shared "next code number" helper (also used by user-service.js)
+const { nextId } = require('./lib/ids');
 
 module.exports = cds.service.impl(async function () {
     // Taking the name out of schema and destructuring them
@@ -59,11 +64,7 @@ module.exports = cds.service.impl(async function () {
 
     // next number for a code like ANM-0001: takes the highest existing one and adds 1.
     // (counting rows would repeat a number after a delete, the highest number never does)
-    async function nextId(table, column, prefix) {
-        const row = await SELECT.one.from(table).columns(`max(${column}) as last`);
-        const lastNo = row?.last ? parseInt(row.last.slice(prefix.length), 10) : 0;
-        return prefix + String(lastNo + 1).padStart(4, '0');
-    }
+    // -> moved to srv/lib/ids.js, so user-service.js can use the same logic for APP- codes
 
     // recounts a shelter's occupancy from the animals really in it (FR-ADM-022)
     // occupancy = animals in the shelter that are not adopted yet
@@ -147,9 +148,10 @@ module.exports = cds.service.impl(async function () {
         await changeStatus(req, ['Under Review'], 'Approved', { staffRemarks: remarks });
 
         // 3. create the adoption record automatically
-        const { count } = await SELECT.one.from(Adoptions).columns('count(*) as count'); // counts the existing adoptions
+        // (was: count the existing adoptions + 1. Replaced by nextId (highest + 1), because adoptionID is
+        //  now @assert.unique and a count can repeat a number that seeded data already uses)
         await INSERT.into(Adoptions).entries({
-            adoptionID: 'ADP-' + String(count + 1).padStart(4, '0'), // is the next number // pads with zeros to make ADP-0001
+            adoptionID: await nextId(Adoptions, 'adoptionID', 'ADP-'), // is the next number // pads with zeros to make ADP-0001
             application_ID: current.ID,
             // An association is a link, and a database table can't store a link, only a value. So CAP automatically creates a real column named <association name>_<key name>, which is animal_ + ID = animal_ID
             animal_ID: current.animal_ID,

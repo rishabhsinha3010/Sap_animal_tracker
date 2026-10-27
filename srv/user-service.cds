@@ -1,4 +1,6 @@
 using {AnimalAdoption.db as db} from '../db/schema';
+// the enum types (HousingType...) for the parameters of the apply action
+using {AnimalAdoption.common as common} from '../db/common';
 // In @restrict, anything not granted is denied, so these are read-only without needing @readonly.
 
 service UserService @(
@@ -35,6 +37,7 @@ service UserService @(
             ID,
             firstName,
             lastName,
+            fullName,   // calculated (first + last name), read-only, used as the page title
             email,
             phoneNumber,
             address,
@@ -84,7 +87,28 @@ service UserService @(
             petExperience,
             status,
             staffRemarks,
-            rejectionReason
+            rejectionReason,
+            // links for the "My Applications" screen (review comments, history, adoption, documents).
+            // they point to the entities below, so the same row-level rules apply to them
+            history,
+            documents,
+            adoption,
+            // colour for the status, same numbers as on the admin side (3 green, 2 orange, 1 red, 0 grey)
+            case
+                when status = 'Approved'
+                     then 3
+                when status = 'Rejected'
+                     then 1
+                when status = 'Under Review'
+                     then 2
+                else 0
+            end as statusCriticality : Integer,
+            // the Withdraw button is only enabled while the application is still Submitted
+            case
+                when status = 'Submitted'
+                     then true
+                else false
+            end as canWithdraw       : Boolean
         }
         actions {
             action withdraw();
@@ -104,12 +128,20 @@ service UserService @(
             animal,
             adoptionDate,
             status,
-            remarks
+            remarks,
+            // so "My Applications" can show the inspection result and the adoption papers
+            inspections,
+            documents
         };
 
     // Animals: read-only, and only the fields an adopter needs
     // (fields like spayedOrNeutered and adoptionEligible are left out on purpose)
-    @readonly
+    // READ for everyone logged in, but the apply button only for the User role
+    // (an admin login can look at the animals, but has no adopter profile to apply with)
+    @restrict: [
+        { grant: 'READ',  to: 'authenticated-user' },
+        { grant: 'apply', to: 'User' }
+    ]
     entity Animals              as
         projection on db.Animals {
             ID,
@@ -126,7 +158,24 @@ service UserService @(
             vaccinationStatus,
             adoptionStatus,
             adoptionFee,
-            shelter
+            shelter,
+            // health history shown on the animal page (the HealthRecords projection below decides which fields)
+            healthRecords,
+            // the Apply button is only enabled for an animal that is still Available
+            case
+                when adoptionStatus = 'Available'
+                     then true
+                else false
+            end as canApply : Boolean
+        }
+        actions {
+            // bound action: "apply for THIS animal". The dialog in Fiori asks for these parameters.
+            // returns the new application, so the UI can jump to it
+            action apply(reasonForAdoption : String(500) @mandatory,
+                         housingType       : common.HousingType,
+                         housingDetails    : String(500),
+                         hasOtherPets      : Boolean,
+                         petExperience     : String(500)) returns AdoptionApplications;
         };
 
     // Shelters: read-only, contact details only (no capacity or licence info)
@@ -181,6 +230,13 @@ service UserService @(
         ID, adoption, fileName, mediaType, fileSize, documentType, documentId, url, content
     };
 
+    // Documents attached to my applications (read only: the admin uploads them)
+    // (3 links: document -> application -> applicant -> email)
+    @restrict: [{ grant: 'READ', to: 'User', where: 'application.applicant.email = $user' }]
+    entity ApplicationDocuments as projection on db.ApplicationDocuments {
+        ID, application, fileName, mediaType, fileSize, documentType, documentId, url, note, content
+    };
+
     // Health certificates only (not internal medical reports)
     // filtered by document type, not by owner
     @restrict: [{ grant: 'READ', to: 'User', where: 'documentType = ''Health Certificate''' }]
@@ -198,10 +254,33 @@ annotate UserService.Users with {
     status @readonly; // Active/Inactive is controlled by the system, not by the user
 };
 
+// buttons are greyed out when they would fail anyway (the JS handlers check it again)
+annotate UserService.Animals actions {
+    apply    @Core.OperationAvailable : in.canApply;
+};
+annotate UserService.AdoptionApplications actions {
+    withdraw @Core.OperationAvailable : in.canWithdraw;
+};
+
 annotate UserService.AdoptionApplications with {
     applicant       @mandatory: false; // the handler fills it from the login
     applicationID   @readonly;
     status          @readonly;
     staffRemarks    @readonly;
     rejectionReason @readonly;
+};
+
+// My Profile page: draft gives the Fiori "Edit / Save / Cancel" buttons and keeps half-typed
+// changes until Save. The checks in user-service.js run on Save (draftActivate), like on the admin side.
+annotate UserService.Users with @odata.draft.enabled;
+
+// texts for the Apply dialog (Fiori builds the dialog from the action parameters)
+annotate UserService.Animals actions {
+    apply(
+        reasonForAdoption @title : 'Why do you want to adopt?' @UI.MultiLineText,
+        housingType       @title : 'Housing Type',
+        housingDetails    @title : 'Housing Details',
+        hasOtherPets      @title : 'Other Pets at Home',
+        petExperience     @title : 'Pet Experience'
+    );
 };

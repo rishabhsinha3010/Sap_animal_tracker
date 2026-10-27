@@ -1,0 +1,23 @@
+<!-- Start page of the adopter app: three tiles that open the other pages -->
+<mvc:View controllerName="adopter.ext.home.Home"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m">
+    <Page title="Animal Adoption" class="sapUiContentPadding">
+        <content>
+            <Title text="Welcome! Find a new friend." level="H2" class="sapUiSmallMarginBottom"/>
+            <HBox wrap="Wrap">
+                <GenericTile header="Browse Animals" subheader="Filter, look, apply" press=".onBrowse" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+                    <TileContent><ImageContent src="sap-icon://heart"/></TileContent>
+                </GenericTile>
+                <GenericTile header="My Applications" subheader="Status, history, withdraw" press=".onApplications" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+                    <TileContent><ImageContent src="sap-icon://document-text"/></TileContent>
+                </GenericTile>
+                <GenericTile header="My Profile" subheader="Register or edit" press=".onProfile" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+                    <TileContent><ImageContent src="sap-icon://person-placeholder"/></TileContent>
+                </GenericTile>
+            </HBox>
+            <MessageStrip text="New here? Open My Profile and register first, then you can apply for an animal."
+                type="Information" showIcon="true" class="sapUiSmallMarginTop"/>
+        </content>
+    </Page>
+</mvc:View>

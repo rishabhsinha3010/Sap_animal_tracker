@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<!-- Landing page: CAP serves app/index.html at http://localhost:4004/ (instead of its own index page).
+     Two links, one per app. Each app only works for its role: the other service answers 403. -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animal Adoption</title>
+    <style>
+        body { font-family: "72", Arial, sans-serif; background: #f5f6f7; margin: 0; padding: 48px 16px; color: #1d2d3e; }
+        h1 { text-align: center; font-weight: 600; }
+        p.sub { text-align: center; color: #556b82; margin-bottom: 40px; }
+        .tiles { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+        a.tile { display: block; width: 260px; padding: 28px; background: #fff; border-radius: 12px;
+                 box-shadow: 0 1px 4px rgba(0,0,0,.12); text-decoration: none; color: inherit; }
+        a.tile:hover { box-shadow: 0 4px 12px rgba(0,0,0,.18); }
+        .icon { font-size: 40px; }
+        .title { font-size: 20px; font-weight: 600; margin: 12px 0 6px; }
+        .desc { color: #556b82; font-size: 14px; }
+        .hint { text-align: center; color: #556b82; font-size: 13px; margin-top: 40px; }
+    </style>
+</head>
+<body>
+    <h1>🐾 Animal Adoption Tracker</h1>
+    <p class="sub">Choose your app</p>
+    <div class="tiles">
+        <a class="tile" href="adopter/index.html">
+            <div class="icon">🐶</div>
+            <div class="title">Adopter</div>
+            <div class="desc">Browse animals, apply, follow your applications and edit your profile.</div>
+        </a>
+        <a class="tile" href="adminapplications/index.html">
+            <div class="icon">🛠️</div>
+            <div class="title">Admin</div>
+            <div class="desc">Dashboard, applications, animals, shelters, health records and inspections.</div>
+        </a>
+    </div>
+    <!-- local test logins (mocked auth in package.json) -->
+    <p class="hint">Local logins: admin / admin · asha@example.com / user · other@example.com / user (no profile yet)</p>
+</body>
+</html>
