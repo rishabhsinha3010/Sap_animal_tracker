@@ -70,7 +70,7 @@
     <div id="failed" class="card" hidden>
         <h1>Something went wrong</h1>
         <p id="failedText"></p>
-        <p><a href="index.html">Try again</a></p>
+        <p><a href="index.html" onclick="sessionStorage.removeItem('aaRelogin')">Try again</a></p>
     </div>
 
     <script>
@@ -81,6 +81,16 @@
         fetch("user/myRoles()", { credentials: "same-origin", headers: { Accept: "application/json" } })
             .then(async (res) => {
                 if (!res.ok) throw new Error(`The server answered ${res.status} ${res.statusText}.`);
+                // no JSON = the login session has ended (e.g. after Sign out or a timeout): the app router
+                // then answers with its login page. Reload once, so the router can sign the user in again.
+                if (!(res.headers.get("content-type") || "").includes("json")) {
+                    if (!sessionStorage.getItem("aaRelogin")) {
+                        sessionStorage.setItem("aaRelogin", "1");
+                        return location.reload();
+                    }
+                    throw new Error("Your session could not be renewed. Please sign in again.");
+                }
+                sessionStorage.removeItem("aaRelogin");
                 const roles = await res.json();
                 if (roles.admin) return location.replace("admin-app/index.html");
                 if (roles.adopter) return location.replace("adopter-app/index.html");
