@@ -59,15 +59,15 @@ entity Animals : common.Base {
     healthRecords     : Association to many HealthRecords on healthRecords.animal = $self;
     applications      : Association to many AdoptionApplications on applications.animal = $self;
     // colour codes for the Fiori screens (0 grey, 1 red, 2 orange, 3 green), calculated when read, never stored
-    healthCriticality   : Integer = case healthStatus
-                                        when 'Healthy' then 3
-                                        when 'Critical' then 1
-                                        when 'Injured' then 1
+    healthCriticality   : Integer = case
+                                        when healthStatus = 'Healthy' then 3
+                                        when healthStatus = 'Critical' then 1
+                                        when healthStatus = 'Injured' then 1
                                         else 2
                                     end;
-    adoptionCriticality : Integer = case adoptionStatus
-                                        when 'Available' then 3
-                                        when 'Adopted' then 0
+    adoptionCriticality : Integer = case
+                                        when adoptionStatus = 'Available' then 3
+                                        when adoptionStatus = 'Adopted' then 0
                                         else 2
                                     end;
 }
@@ -113,10 +113,10 @@ entity AdoptionApplications : common.Base {
     // "to one ... on" = no extra column, CAP finds it through Adoptions.application
     adoption          : Association to one Adoptions on adoption.application = $self;
     // colour code of the status (3 green, 2 orange, 1 red, 0 grey), shared by the admin and the adopter app
-    statusCriticality : Integer = case status
-                                      when 'Approved' then 3
-                                      when 'Rejected' then 1
-                                      when 'Under Review' then 2
+    statusCriticality : Integer = case
+                                      when status = 'Approved' then 3
+                                      when status = 'Rejected' then 1
+                                      when status = 'Under Review' then 2
                                       else 0
                                   end;
 }
@@ -169,10 +169,10 @@ entity HealthRecords : common.Base {
     nextCheckupDate   : Date;
     remarks           : String(500);
     documents         : Composition of many HealthDocuments on documents.healthRecord = $self;
-    healthCriticality : Integer = case healthStatus
-                                      when 'Healthy' then 3
-                                      when 'Critical' then 1
-                                      when 'Injured' then 1
+    healthCriticality : Integer = case
+                                      when healthStatus = 'Healthy' then 3
+                                      when healthStatus = 'Critical' then 1
+                                      when healthStatus = 'Injured' then 1
                                       else 2
                                   end;
 }
@@ -193,10 +193,10 @@ entity Inspections : common.Base {
     result             : common.InspectionResult default 'Pending';
     remarks            : String(500);
     documents          : Composition of many InspectionDocuments on documents.inspection = $self;
-    resultCriticality  : Integer = case result
-                                       when 'Validated' then 3
-                                       when 'Follow-up Required' then 2
-                                       when 'Failed' then 1
+    resultCriticality  : Integer = case
+                                       when result = 'Validated' then 3
+                                       when result = 'Follow-up Required' then 2
+                                       when result = 'Failed' then 1
                                        else 0
                                    end;
 }

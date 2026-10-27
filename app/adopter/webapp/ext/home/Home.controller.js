@@ -3,8 +3,9 @@
 sap.ui.define([
     "sap/fe/core/PageController",
     "sap/ui/model/json/JSONModel",
-    "sap/ui/core/format/NumberFormat"
-], function (PageController, JSONModel, NumberFormat) {
+    "sap/ui/core/format/NumberFormat",
+    "sap/base/Log"
+], function (PageController, JSONModel, NumberFormat, Log) {
     "use strict";
 
     const STATUS_STATE = { "Submitted": "Information", "Under Review": "Warning", "Approved": "Success", "Rejected": "Error", "Withdrawn": "None" };
@@ -59,6 +60,7 @@ sap.ui.define([
                 const aContexts = await oModel.bindList(sPath, undefined, undefined, undefined, mParameters).requestContexts(0, iMax);
                 return aContexts.map((oContext) => oContext.getObject());
             } catch (e) {
+                Log.error(`Home page: reading ${sPath} failed`, e);
                 return [];
             }
         },
