@@ -67,7 +67,9 @@ sap.ui.define([
             try {
                 const oList = oModel.bindList(sPath, undefined, undefined, undefined, { ...mParameters, $$groupId: "$direct" });
                 const aContexts = await oList.requestContexts(0, iMax);
-                return aContexts.map((oContext) => oContext.getObject());
+                const aRows = aContexts.map((oContext) => oContext.getObject());
+                aRows.total = oList.getCount(); // only known when $count is requested
+                return aRows;
             } catch (e) {
                 Log.error(`Home page: reading ${sPath} failed`, e);
                 return null;
@@ -97,7 +99,8 @@ sap.ui.define([
                         $select: "ID,name,breed,gender,age,photo,adoptionFee",
                         $expand: "shelter($select=ID,shelterName,city)",
                         $filter: "adoptionStatus eq 'Available'",
-                        $orderby: "name"
+                        $orderby: "name",
+                        $count: true
                     }, 12)
                 ]);
 
@@ -117,6 +120,7 @@ sap.ui.define([
                     animalName: a.animal ? a.animal.name : "",
                     photo: (a.animal && a.animal.photo) || "sap-icon://heart"
                 })));
+                oHome.setProperty("/availableCount", aAnimals ? (aAnimals.total ?? aAnimals.length) : 0);
                 oHome.setProperty("/animals", (aAnimals || []).map((a) => ({
                     ID: a.ID,
                     name: a.name,
