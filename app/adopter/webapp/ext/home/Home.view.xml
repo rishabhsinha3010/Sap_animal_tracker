@@ -16,15 +16,18 @@
                     <Text text="{i18n>heroText}" class="aaHeroText"/>
                     <HBox wrap="Wrap" class="sapUiSmallMarginTop">
                         <Button text="{i18n>browseAnimals}" icon="sap-icon://search" type="Emphasized" press=".onBrowse" class="sapUiTinyMarginEnd sapUiTinyMarginBottom"/>
-                        <Button text="{i18n>myApplications}" icon="sap-icon://document-text" press=".onApplications" class="sapUiTinyMarginEnd sapUiTinyMarginBottom"/>
-                        <Button text="{= ${home>/hasProfile} ? ${i18n>myProfile} : ${i18n>register} }" icon="sap-icon://person-placeholder"
+                        <Button text="{i18n>myApplications}" icon="sap-icon://document-text" press=".onApplications" visible="{home>/isAdopter}" class="sapUiTinyMarginEnd sapUiTinyMarginBottom"/>
+                        <Button text="{= ${home>/hasProfile} ? ${i18n>myProfile} : ${i18n>register} }" icon="sap-icon://person-placeholder" visible="{home>/isAdopter}"
                             press=".onProfile" class="sapUiTinyMarginEnd sapUiTinyMarginBottom"/>
                     </HBox>
                 </VBox>
 
                 <VBox class="aaSection">
                     <!-- shown until the adopter has a profile: applying needs one -->
-                    <MessageStrip visible="{= !${home>/busy} &amp;&amp; !${home>/hasProfile} }" text="{i18n>registerHint}"
+                    <!-- logged in without the User role (e.g. as admin): can look, but cannot register or apply -->
+                    <MessageStrip visible="{= !${home>/busy} &amp;&amp; !${home>/isAdopter} }" text="{i18n>notAdopterHint}"
+                        type="Warning" showIcon="true" class="sapUiSmallMarginBottom"/>
+                    <MessageStrip visible="{= !${home>/busy} &amp;&amp; ${home>/isAdopter} &amp;&amp; !${home>/hasProfile} }" text="{i18n>registerHint}"
                         type="Information" showIcon="true" class="sapUiSmallMarginBottom">
                         <link>
                             <Link text="{i18n>registerNow}" press=".onProfile"/>

@@ -15,7 +15,7 @@ sap.ui.define([
     return PageController.extend("animaladoption.adopter.ext.home.Home", {
         onInit: function () {
             PageController.prototype.onInit.apply(this, arguments);
-            this.getView().setModel(new JSONModel({ busy: true, hasProfile: true, greeting: "", applications: [], animals: [] }), "home");
+            this.getView().setModel(new JSONModel({ busy: true, isAdopter: true, hasProfile: true, greeting: "", applications: [], animals: [] }), "home");
             // reload every time the page is shown, so new applications appear after Apply
             this.getAppComponent().getRouter().getRoute("Home").attachPatternMatched(this._load, this);
         },
@@ -53,15 +53,19 @@ sap.ui.define([
             }
         },
 
-        // reads rows from the OData service (/user) as plain objects; a failed read (e.g. 403 for an admin login) gives []
+        // reads rows from the OData service (/user) as plain objects.
+        // $direct = its own HTTP request, not part of a $batch: in a batch, one failed read (e.g. 403 on
+        // /Users for a login without the User role) cancels all the reads after it.
+        // A failed read gives null, so the caller can tell "failed" from "no rows".
         _rows: async function (sPath, mParameters, iMax) {
             const oModel = this.getAppComponent().getModel();
             try {
-                const aContexts = await oModel.bindList(sPath, undefined, undefined, undefined, mParameters).requestContexts(0, iMax);
+                const oList = oModel.bindList(sPath, undefined, undefined, undefined, { ...mParameters, $$groupId: "$direct" });
+                const aContexts = await oList.requestContexts(0, iMax);
                 return aContexts.map((oContext) => oContext.getObject());
             } catch (e) {
                 Log.error(`Home page: reading ${sPath} failed`, e);
-                return [];
+                return null;
             }
         },
 
@@ -85,12 +89,14 @@ sap.ui.define([
                     }, 12)
                 ]);
 
-                const oProfile = aProfile[0];
+                // the profile read fails (403) when the login has no User role, e.g. admin
+                oHome.setProperty("/isAdopter", aProfile !== null);
+                const oProfile = (aProfile || [])[0];
                 oHome.setProperty("/hasProfile", !!oProfile);
                 oHome.setProperty("/greeting", oProfile
                     ? oBundle.getText("greetingNamed", [oProfile.firstName])
                     : oBundle.getText("greeting"));
-                oHome.setProperty("/applications", aApplications.map((a) => ({
+                oHome.setProperty("/applications", (aApplications || []).map((a) => ({
                     ID: a.ID,
                     applicationID: a.applicationID,
                     applicationDate: a.applicationDate,
@@ -99,7 +105,7 @@ sap.ui.define([
                     animalName: a.animal ? a.animal.name : "",
                     photo: (a.animal && a.animal.photo) || "sap-icon://heart"
                 })));
-                oHome.setProperty("/animals", aAnimals.map((a) => ({
+                oHome.setProperty("/animals", (aAnimals || []).map((a) => ({
                     ID: a.ID,
                     name: a.name,
                     breed: a.breed,
