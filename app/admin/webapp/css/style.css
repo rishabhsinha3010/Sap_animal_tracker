@@ -1,0 +1,40 @@
+/* Admin app styles. Colours come from the SAP theme parameters, so light and dark themes both work. */
+
+/* KPI cards on the dashboard */
+.aaKpi .aaKpiBody {
+    padding: 1rem 1.25rem;
+    gap: 1rem;
+}
+.aaKpi .aaKpiIcon {
+    font-size: 1.5rem;
+    width: 3rem;
+    height: 3rem;
+    line-height: 3rem;
+    text-align: center;
+    border-radius: 50%;
+}
+.aaKpi .aaKpiValue {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--sapTextColor);
+}
+.aaKpi .aaKpiLabel {
+    color: var(--sapContent_LabelColor);
+    font-size: var(--sapFontSize);
+}
+.aaKpiTotal .aaKpiIcon { color: var(--sapInformativeColor, #0070f2); }
+.aaKpiGood  .aaKpiIcon { color: var(--sapPositiveColor, #188918); }
+.aaKpiInfo  .aaKpiIcon { color: var(--sapNeutralColor, #788fa6); }
+.aaKpiWarn  .aaKpiIcon { color: var(--sapCriticalColor, #e76500); }
+/* soft circle in the icon's own colour */
+.aaKpi .aaKpiIcon { background-color: color-mix(in srgb, currentColor 12%, transparent); }
+
+/* cards in the grid: same height per row */
+.aaDashboard .sapFCard {
+    height: 100%;
+}
+
+.aaMuted {
+    color: var(--sapContent_LabelColor);
+}

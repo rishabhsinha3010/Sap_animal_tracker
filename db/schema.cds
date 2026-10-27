@@ -58,6 +58,18 @@ entity Animals : common.Base {
     // animal's draft, so they could only be edited inside an animal. Health records get their own app.
     healthRecords     : Association to many HealthRecords on healthRecords.animal = $self;
     applications      : Association to many AdoptionApplications on applications.animal = $self;
+    // colour codes for the Fiori screens (0 grey, 1 red, 2 orange, 3 green), calculated when read, never stored
+    healthCriticality   : Integer = case healthStatus
+                                        when 'Healthy' then 3
+                                        when 'Critical' then 1
+                                        when 'Injured' then 1
+                                        else 2
+                                    end;
+    adoptionCriticality : Integer = case adoptionStatus
+                                        when 'Available' then 3
+                                        when 'Adopted' then 0
+                                        else 2
+                                    end;
 }
 
 // ---------------- Users ----------------
@@ -100,6 +112,13 @@ entity AdoptionApplications : common.Base {
     // the adoption created when this application is approved (empty before that).
     // "to one ... on" = no extra column, CAP finds it through Adoptions.application
     adoption          : Association to one Adoptions on adoption.application = $self;
+    // colour code of the status (3 green, 2 orange, 1 red, 0 grey), shared by the admin and the adopter app
+    statusCriticality : Integer = case status
+                                      when 'Approved' then 3
+                                      when 'Rejected' then 1
+                                      when 'Under Review' then 2
+                                      else 0
+                                  end;
 }
 
 entity ApplicationDocuments : common.Attachment {
@@ -150,6 +169,12 @@ entity HealthRecords : common.Base {
     nextCheckupDate   : Date;
     remarks           : String(500);
     documents         : Composition of many HealthDocuments on documents.healthRecord = $self;
+    healthCriticality : Integer = case healthStatus
+                                      when 'Healthy' then 3
+                                      when 'Critical' then 1
+                                      when 'Injured' then 1
+                                      else 2
+                                  end;
 }
 
 entity HealthDocuments : common.Attachment {
@@ -168,6 +193,12 @@ entity Inspections : common.Base {
     result             : common.InspectionResult default 'Pending';
     remarks            : String(500);
     documents          : Composition of many InspectionDocuments on documents.inspection = $self;
+    resultCriticality  : Integer = case result
+                                       when 'Validated' then 3
+                                       when 'Follow-up Required' then 2
+                                       when 'Failed' then 1
+                                       else 0
+                                   end;
 }
 
 entity InspectionDocuments : common.Attachment {

@@ -1,7 +1,7 @@
 {
-  "name": "admin-applications",
+  "name": "admin",
   "version": "0.0.1",
-  "description": "An SAP Fiori application.",
+  "description": "Admin app: dashboard, applications, adoptions, animals, shelters, health records, inspections",
   "keywords": [
     "ui5",
     "openui5",

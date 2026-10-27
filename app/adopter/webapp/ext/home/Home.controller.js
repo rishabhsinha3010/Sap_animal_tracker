@@ -1,15 +1,40 @@
 // controller of the adopter start page
 // PageController = the base class Fiori elements gives custom pages (router, editFlow, routing helpers)
-sap.ui.define(["sap/fe/core/PageController"], function (PageController) {
+sap.ui.define([
+    "sap/fe/core/PageController",
+    "sap/ui/model/json/JSONModel",
+    "sap/ui/core/format/NumberFormat"
+], function (PageController, JSONModel, NumberFormat) {
     "use strict";
 
-    return PageController.extend("adopter.ext.home.Home", {
+    const STATUS_STATE = { "Submitted": "Information", "Under Review": "Warning", "Approved": "Success", "Rejected": "Error", "Withdrawn": "None" };
+    // the adoption fees are in Indian rupees (the sample shelters are in India)
+    const oFee = NumberFormat.getIntegerInstance({ groupingEnabled: true });
+
+    return PageController.extend("animaladoption.adopter.ext.home.Home", {
+        onInit: function () {
+            PageController.prototype.onInit.apply(this, arguments);
+            this.getView().setModel(new JSONModel({ busy: true, hasProfile: true, greeting: "", applications: [], animals: [] }), "home");
+            // reload every time the page is shown, so new applications appear after Apply
+            this.getAppComponent().getRouter().getRoute("Home").attachPatternMatched(this._load, this);
+        },
+
         onBrowse: function () {
             this.getAppComponent().getRouter().navTo("AnimalsList");
         },
 
         onApplications: function () {
             this.getAppComponent().getRouter().navTo("AdoptionApplicationsList");
+        },
+
+        onOpenAnimal: function (oEvent) {
+            const oAnimal = oEvent.getSource().getBindingContext("home").getObject();
+            this.getAppComponent().getRouter().navTo("AnimalsObjectPage", { key: oAnimal.ID });
+        },
+
+        onOpenApplication: function (oEvent) {
+            const oApplication = oEvent.getSource().getBindingContext("home").getObject();
+            this.getAppComponent().getRouter().navTo("AdoptionApplicationsObjectPage", { key: oApplication.ID });
         },
 
         // My Profile: the server only returns MY row (the @restrict rule email = $user),
@@ -24,6 +49,66 @@ sap.ui.define(["sap/fe/core/PageController"], function (PageController) {
             } else {
                 // creates a draft and opens it as an empty form; Save runs the registration checks
                 this.editFlow.createDocument("/Users", { creationMode: "NewPage" });
+            }
+        },
+
+        // reads rows from the OData service (/user) as plain objects; a failed read (e.g. 403 for an admin login) gives []
+        _rows: async function (sPath, mParameters, iMax) {
+            const oModel = this.getAppComponent().getModel();
+            try {
+                const aContexts = await oModel.bindList(sPath, undefined, undefined, undefined, mParameters).requestContexts(0, iMax);
+                return aContexts.map((oContext) => oContext.getObject());
+            } catch (e) {
+                return [];
+            }
+        },
+
+        _load: async function () {
+            const oHome = this.getView().getModel("home");
+            const oBundle = this.getAppComponent().getModel("i18n").getResourceBundle();
+            oHome.setProperty("/busy", true);
+            try {
+                const [aProfile, aApplications, aAnimals] = await Promise.all([
+                    this._rows("/Users", { $select: "ID,firstName", $filter: "IsActiveEntity eq true" }, 1),
+                    this._rows("/AdoptionApplications", {
+                        $select: "ID,applicationID,applicationDate,status",
+                        $expand: "animal($select=ID,name,photo)",
+                        $orderby: "applicationDate desc"
+                    }, 3),
+                    this._rows("/Animals", {
+                        $select: "ID,name,breed,gender,age,photo,adoptionFee",
+                        $expand: "shelter($select=ID,shelterName,city)",
+                        $filter: "adoptionStatus eq 'Available'",
+                        $orderby: "name"
+                    }, 12)
+                ]);
+
+                const oProfile = aProfile[0];
+                oHome.setProperty("/hasProfile", !!oProfile);
+                oHome.setProperty("/greeting", oProfile
+                    ? oBundle.getText("greetingNamed", [oProfile.firstName])
+                    : oBundle.getText("greeting"));
+                oHome.setProperty("/applications", aApplications.map((a) => ({
+                    ID: a.ID,
+                    applicationID: a.applicationID,
+                    applicationDate: a.applicationDate,
+                    status: a.status,
+                    state: STATUS_STATE[a.status] || "None",
+                    animalName: a.animal ? a.animal.name : "",
+                    photo: (a.animal && a.animal.photo) || "sap-icon://heart"
+                })));
+                oHome.setProperty("/animals", aAnimals.map((a) => ({
+                    ID: a.ID,
+                    name: a.name,
+                    breed: a.breed,
+                    gender: a.gender,
+                    photo: a.photo,
+                    ageText: oBundle.getText(a.age === 1 ? "ageYear" : "ageYears", [a.age]),
+                    fee: Number(a.adoptionFee) ? "₹ " + oFee.format(Number(a.adoptionFee)) : oBundle.getText("free"),
+                    shelter: a.shelter ? `${a.shelter.shelterName}, ${a.shelter.city}` : ""
+                })));
+            } finally {
+                oHome.setProperty("/busy", false);
             }
         }
     });

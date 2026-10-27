@@ -1,20 +1,21 @@
 {
   "_version": "1.89.0",
   "sap.app": {
-    "id": "adminapplications",
+    "id": "animaladoption.admin",
     "type": "application",
-    "i18n": "i18n/i18n.properties",
+    "i18n": {
+      "bundleUrl": "i18n/i18n.properties",
+      "supportedLocales": [
+        ""
+      ],
+      "fallbackLocale": ""
+    },
     "applicationVersion": {
       "version": "0.0.1"
     },
     "title": "{{appTitle}}",
     "description": "{{appDescription}}",
     "resources": "resources.json",
-    "sourceTemplate": {
-      "id": "@sap/generator-fiori:lrop",
-      "version": "1.33.0",
-      "toolsId": "d1657736-d8a5-48bd-87e9-36d37b84a7e0"
-    },
     "dataSources": {
       "mainService": {
         "uri": "/admin/",
@@ -50,7 +51,9 @@
         "sap.m": {},
         "sap.ui.core": {},
         "sap.fe.templates": {},
-        "sap.f": {}
+        "sap.f": {},
+        "sap.suite.ui.microchart": {},
+        "sap.ui.layout": {}
       }
     },
     "contentDensities": {
@@ -61,7 +64,11 @@
       "i18n": {
         "type": "sap.ui.model.resource.ResourceModel",
         "settings": {
-          "bundleName": "adminapplications.i18n.i18n"
+          "bundleName": "animaladoption.admin.i18n.i18n",
+          "supportedLocales": [
+            ""
+          ],
+          "fallbackLocale": ""
         }
       },
       "": {
@@ -75,11 +82,21 @@
       },
       "@i18n": {
         "type": "sap.ui.model.resource.ResourceModel",
-        "uri": "i18n/i18n.properties"
+        "uri": "i18n/i18n.properties",
+        "settings": {
+          "supportedLocales": [
+            ""
+          ],
+          "fallbackLocale": ""
+        }
       }
     },
     "resources": {
-      "css": []
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
     },
     "routing": {
       "config": {},
@@ -98,6 +115,16 @@
           "pattern": "AdoptionApplications({key}):?query:",
           "name": "AdoptionApplicationsObjectPage",
           "target": "AdoptionApplicationsObjectPage"
+        },
+        {
+          "pattern": "Adoptions:?query:",
+          "name": "AdoptionsList",
+          "target": "AdoptionsList"
+        },
+        {
+          "pattern": "Adoptions({key}):?query:",
+          "name": "AdoptionsObjectPage",
+          "target": "AdoptionsObjectPage"
         },
         {
           "pattern": "Animals:?query:",
@@ -147,7 +174,7 @@
           "name": "sap.fe.core.fpm",
           "options": {
             "settings": {
-              "viewName": "adminapplications.ext.dashboard.Dashboard",
+              "viewName": "animaladoption.admin.ext.dashboard.Dashboard",
               "contextPath": "/AnimalSummary"
             }
           }
@@ -170,10 +197,12 @@
               "controlConfiguration": {
                 "@com.sap.vocabularies.UI.v1.LineItem": {
                   "tableSettings": {
-                    "type": "ResponsiveTable"
+                    "type": "ResponsiveTable",
+                    "growingThreshold": 20
                   }
                 }
-              }
+              },
+              "initialLoad": "Enabled"
             }
           }
         },
@@ -206,10 +235,12 @@
               "controlConfiguration": {
                 "@com.sap.vocabularies.UI.v1.LineItem": {
                   "tableSettings": {
-                    "type": "ResponsiveTable"
+                    "type": "ResponsiveTable",
+                    "growingThreshold": 20
                   }
                 }
-              }
+              },
+              "initialLoad": "Enabled"
             }
           }
         },
@@ -242,10 +273,12 @@
               "controlConfiguration": {
                 "@com.sap.vocabularies.UI.v1.LineItem": {
                   "tableSettings": {
-                    "type": "ResponsiveTable"
+                    "type": "ResponsiveTable",
+                    "growingThreshold": 20
                   }
                 }
-              }
+              },
+              "initialLoad": "Enabled"
             }
           }
         },
@@ -278,10 +311,12 @@
               "controlConfiguration": {
                 "@com.sap.vocabularies.UI.v1.LineItem": {
                   "tableSettings": {
-                    "type": "ResponsiveTable"
+                    "type": "ResponsiveTable",
+                    "growingThreshold": 20
                   }
                 }
-              }
+              },
+              "initialLoad": "Enabled"
             }
           }
         },
@@ -314,10 +349,12 @@
               "controlConfiguration": {
                 "@com.sap.vocabularies.UI.v1.LineItem": {
                   "tableSettings": {
-                    "type": "ResponsiveTable"
+                    "type": "ResponsiveTable",
+                    "growingThreshold": 20
                   }
                 }
-              }
+              },
+              "initialLoad": "Enabled"
             }
           }
         },
@@ -329,6 +366,44 @@
             "settings": {
               "editableHeaderContent": false,
               "contextPath": "/Inspections"
+            }
+          }
+        },
+        "AdoptionsList": {
+          "type": "Component",
+          "id": "AdoptionsList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "contextPath": "/Adoptions",
+              "variantManagement": "Page",
+              "initialLoad": "Enabled",
+              "navigation": {
+                "Adoptions": {
+                  "detail": {
+                    "route": "AdoptionsObjectPage"
+                  }
+                }
+              },
+              "controlConfiguration": {
+                "@com.sap.vocabularies.UI.v1.LineItem": {
+                  "tableSettings": {
+                    "type": "ResponsiveTable",
+                    "growingThreshold": 20
+                  }
+                }
+              }
+            }
+          }
+        },
+        "AdoptionsObjectPage": {
+          "type": "Component",
+          "id": "AdoptionsObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/Adoptions"
             }
           }
         }

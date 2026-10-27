@@ -1,0 +1,177 @@
+<!-- Admin dashboard (custom FPM page, the start page of the admin app).
+     All numbers come from the read-only views in srv/admin-service.cds; the controller loads them
+     into the "dash" JSON model every time the page is opened, so they are never out of date. -->
+<mvc:View controllerName="animaladoption.admin.ext.dashboard.Dashboard"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:f="sap.f"
+    xmlns:card="sap.f.cards"
+    xmlns:grid="sap.ui.layout.cssgrid"
+    xmlns:mc="sap.suite.ui.microchart"
+    xmlns:core="sap.ui.core"
+    xmlns:app="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1">
+    <f:DynamicPage id="dashboardPage" headerExpanded="true" toggleHeaderOnTitleClick="false" class="aaDashboard">
+        <f:title>
+            <f:DynamicPageTitle>
+                <f:heading>
+                    <Title text="{i18n>dashboardTitle}" level="H1" wrapping="true"/>
+                </f:heading>
+                <f:expandedContent>
+                    <Text text="{i18n>dashboardSubtitle}"/>
+                </f:expandedContent>
+                <f:actions>
+                    <Button icon="sap-icon://refresh" text="{i18n>refresh}" type="Transparent" press=".onRefresh"/>
+                </f:actions>
+            </f:DynamicPageTitle>
+        </f:title>
+
+        <f:header>
+            <f:DynamicPageHeader pinnable="false">
+                <!-- quick navigation: app:route = name of the route in manifest.json -->
+                <HBox wrap="Wrap" class="aaNav">
+                    <Button text="{i18n>navApplications}" icon="sap-icon://document-text" press=".onOpen" app:route="AdoptionApplicationsList" class="sapUiTinyMarginEnd sapUiTinyMarginBottom"/>
+                    <Button text="{i18n>navAdoptions}" icon="sap-icon://family-care" press=".onOpen" app:route="AdoptionsList" class="sapUiTinyMarginEnd sapUiTinyMarginBottom"/>
+                    <Button text="{i18n>navAnimals}" icon="sap-icon://heart" press=".onOpen" app:route="AnimalsList" class="sapUiTinyMarginEnd sapUiTinyMarginBottom"/>
+                    <Button text="{i18n>navShelters}" icon="sap-icon://building" press=".onOpen" app:route="SheltersList" class="sapUiTinyMarginEnd sapUiTinyMarginBottom"/>
+                    <Button text="{i18n>navHealth}" icon="sap-icon://stethoscope" press=".onOpen" app:route="HealthRecordsList" class="sapUiTinyMarginEnd sapUiTinyMarginBottom"/>
+                    <Button text="{i18n>navInspections}" icon="sap-icon://inspection" press=".onOpen" app:route="InspectionsList" class="sapUiTinyMarginEnd sapUiTinyMarginBottom"/>
+                </HBox>
+            </f:DynamicPageHeader>
+        </f:header>
+
+        <f:content>
+            <VBox busy="{dash>/busy}" busyIndicatorDelay="0">
+                <!-- KPI cards (FR-ADM-023) -->
+                <grid:CSSGrid gridTemplateColumns="repeat(auto-fit, minmax(13rem, 1fr))" gridGap="1rem" class="sapUiSmallMarginBottom">
+                    <f:Card class="aaKpi aaKpiTotal">
+                        <f:content>
+                            <HBox alignItems="Center" class="aaKpiBody">
+                                <core:Icon src="sap-icon://heart" class="aaKpiIcon"/>
+                                <VBox>
+                                    <Text text="{dash>/kpi/totalAnimals}" class="aaKpiValue"/>
+                                    <Text text="{i18n>kpiTotal}" class="aaKpiLabel"/>
+                                </VBox>
+                            </HBox>
+                        </f:content>
+                    </f:Card>
+                    <f:Card class="aaKpi aaKpiGood">
+                        <f:content>
+                            <HBox alignItems="Center" class="aaKpiBody">
+                                <core:Icon src="sap-icon://accept" class="aaKpiIcon"/>
+                                <VBox>
+                                    <Text text="{dash>/kpi/availableAnimals}" class="aaKpiValue"/>
+                                    <Text text="{i18n>kpiAvailable}" class="aaKpiLabel"/>
+                                </VBox>
+                            </HBox>
+                        </f:content>
+                    </f:Card>
+                    <f:Card class="aaKpi aaKpiInfo">
+                        <f:content>
+                            <HBox alignItems="Center" class="aaKpiBody">
+                                <core:Icon src="sap-icon://family-care" class="aaKpiIcon"/>
+                                <VBox>
+                                    <Text text="{dash>/kpi/adoptedAnimals}" class="aaKpiValue"/>
+                                    <Text text="{i18n>kpiAdopted}" class="aaKpiLabel"/>
+                                </VBox>
+                            </HBox>
+                        </f:content>
+                    </f:Card>
+                    <f:Card class="aaKpi aaKpiWarn">
+                        <f:content>
+                            <HBox alignItems="Center" class="aaKpiBody">
+                                <core:Icon src="sap-icon://pending" class="aaKpiIcon"/>
+                                <VBox>
+                                    <Text text="{dash>/kpi/unavailableAnimals}" class="aaKpiValue"/>
+                                    <Text text="{i18n>kpiUnavailable}" class="aaKpiLabel"/>
+                                </VBox>
+                            </HBox>
+                        </f:content>
+                    </f:Card>
+                </grid:CSSGrid>
+
+                <grid:CSSGrid gridTemplateColumns="repeat(auto-fit, minmax(22rem, 1fr))" gridGap="1rem">
+                    <!-- bar chart: applications per status (FR-ADM-024); pressing a bar opens the list -->
+                    <f:Card>
+                        <f:header>
+                            <card:Header title="{i18n>chartStatusTitle}" subtitle="{i18n>chartStatusSubtitle}" iconSrc="sap-icon://horizontal-bar-chart"/>
+                        </f:header>
+                        <f:content>
+                            <mc:InteractiveBarChart bars="{dash>/statuses}" displayedBars="5" labelWidth="30%"
+                                selectionChanged=".onStatusSelected" class="sapUiSmallMargin">
+                                <mc:bars>
+                                    <mc:InteractiveBarChartBar label="{dash>status}" value="{dash>total}" displayedValue="{dash>total}" color="{dash>color}"/>
+                                </mc:bars>
+                            </mc:InteractiveBarChart>
+                        </f:content>
+                    </f:Card>
+
+                    <!-- line chart: adoptions per month, last 12 months (FR-ADM-025) -->
+                    <f:Card>
+                        <f:header>
+                            <card:Header title="{i18n>chartTrendTitle}" subtitle="{dash>/trendSubtitle}" iconSrc="sap-icon://line-chart"/>
+                        </f:header>
+                        <f:content>
+                            <mc:InteractiveLineChart points="{dash>/trend}" displayedPoints="12" selectionEnabled="false" class="sapUiSmallMargin">
+                                <mc:points>
+                                    <mc:InteractiveLineChartPoint label="{dash>label}" secondaryLabel="{dash>year}" value="{dash>total}" displayedValue="{dash>total}"/>
+                                </mc:points>
+                            </mc:InteractiveLineChart>
+                        </f:content>
+                    </f:Card>
+
+                    <!-- shelter occupancy (FR-ADM-026) -->
+                    <f:Card>
+                        <f:header>
+                            <card:Header title="{i18n>occupancyTitle}" subtitle="{i18n>occupancySubtitle}" iconSrc="sap-icon://building"
+                                press=".onOpen" app:route="SheltersList"/>
+                        </f:header>
+                        <f:content>
+                            <List items="{dash>/shelters}" showSeparators="Inner" noDataText="{i18n>noShelters}" class="sapUiTinyMarginBottom">
+                                <CustomListItem>
+                                    <VBox class="sapUiSmallMarginBeginEnd sapUiSmallMarginTopBottom">
+                                        <HBox justifyContent="SpaceBetween">
+                                            <Label text="{dash>shelterName}" design="Bold"/>
+                                            <Text text="{dash>city}" class="aaMuted"/>
+                                        </HBox>
+                                        <ProgressIndicator percentValue="{dash>percent}" displayValue="{dash>currentOccupancy} / {dash>capacity} ({dash>percent}%)"
+                                            state="{dash>state}" showValue="true" class="sapUiTinyMarginTop"/>
+                                    </VBox>
+                                </CustomListItem>
+                            </List>
+                        </f:content>
+                    </f:Card>
+
+                    <!-- work queue: applications waiting for a decision -->
+                    <f:Card>
+                        <f:header>
+                            <card:Header title="{i18n>pendingTitle}" subtitle="{i18n>pendingSubtitle}" iconSrc="sap-icon://inbox"
+                                statusText="{dash>/pendingCount}" press=".onOpen" app:route="AdoptionApplicationsList"/>
+                        </f:header>
+                        <f:content>
+                            <List items="{dash>/pending}" noDataText="{i18n>noPending}" class="sapUiTinyMarginBottom">
+                                <StandardListItem title="{dash>animalName}" description="{dash>applicationID} · {dash>applicant}"
+                                    info="{dash>status}" infoState="{dash>state}" icon="sap-icon://document-text"
+                                    type="Navigation" press=".onOpenApplication"/>
+                            </List>
+                        </f:content>
+                    </f:Card>
+
+                    <!-- work queue: health checkups that are late (FR-ADM-014) -->
+                    <f:Card>
+                        <f:header>
+                            <card:Header title="{i18n>overdueTitle}" subtitle="{i18n>overdueSubtitle}" iconSrc="sap-icon://stethoscope"
+                                statusText="{dash>/overdueCount}" press=".onOpen" app:route="HealthRecordsList"/>
+                        </f:header>
+                        <f:content>
+                            <List items="{dash>/overdue}" noDataText="{i18n>noOverdue}" class="sapUiTinyMarginBottom">
+                                <StandardListItem title="{dash>animalName}" description="{i18n>dueSince} {dash>nextCheckupDate}"
+                                    info="{dash>healthStatus}" infoState="Warning" icon="sap-icon://appointment-2"
+                                    type="Navigation" press=".onOpenCheckup"/>
+                            </List>
+                        </f:content>
+                    </f:Card>
+                </grid:CSSGrid>
+            </VBox>
+        </f:content>
+    </f:DynamicPage>
+</mvc:View>
