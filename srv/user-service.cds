@@ -238,6 +238,16 @@ service UserService @(
         ID, healthRecord, fileName, mediaType, fileSize, documentType, documentId, url, content
     };
 
+    // Who am I? The start page (app/index.html) calls this after login and opens the admin app
+    // for the Admin role and the adopter app for the User role. Open to every logged-in user,
+    // also one without any role, so the page can say "no role assigned" instead of failing.
+    type Roles {
+        user    : String(255);
+        admin   : Boolean;
+        adopter : Boolean;
+    }
+    function myRoles() returns Roles;
+
 };
 
 // annotate is attach tag to existing thing 

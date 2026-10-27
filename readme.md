@@ -8,12 +8,12 @@ The full requirements are in [`requirements.txt`](requirements.txt).
 
 ```bash
 npm install
-npm run watch          # http://localhost:4004  (landing page with both apps)
+npm run watch          # http://localhost:4004  (opens the app that matches your login's role)
 ```
 
 | URL | App | Login (mocked auth, see `package.json`) |
 |---|---|---|
-| http://localhost:4004/ | Landing page | – |
+| http://localhost:4004/ | Start page: opens the admin app for Admin, the adopter app for User | any of the logins |
 | http://localhost:4004/adopter-app/index.html | Adopter app | `asha@example.com` / `user` (has a profile), `other@example.com` / `user` (new, no profile) |
 | http://localhost:4004/admin-app/index.html | Admin app | `admin` / `admin` |
 
@@ -60,7 +60,9 @@ The deployment creates three apps:
 
 Then assign the roles in the BTP cockpit: **Subaccount → Security → Role Collections → `AnimalAdoption_Admin` /
 `AnimalAdoption_User` → Edit → Users**. Add the user's email (identity provider: Default identity provider) and save.
-Log out and in again (*Sign out* on the landing page) so the new roles are in the token.
+Then **sign out and in again** (`<router URL>/do/logout`) so the new roles are in the token.
+After login, `/` opens the admin app for `AnimalAdoption_Admin` and the adopter app for `AnimalAdoption_User`.
+A user without either role sees a "No access assigned yet" page with their login email.
 
 Note: every deployment re-imports the CSV sample data from `db/data`, so sample rows changed in the app are reset.
 
@@ -83,7 +85,7 @@ because it expects an XSUAA token, which only the router adds.
 xs-security.json              XSUAA: scopes, role templates, role collections (Admin, User)
 mta.yaml                      Cloud Foundry deployment: srv + db deployer + app router, XSUAA, existing HDI
 app/                          UI (Fiori elements apps)
-  index.html                  landing page served at /
+  index.html                  start page at /: asks UserService.myRoles() and opens the right app
   router/                     app router (XSUAA login); xs-app.json = routes, build.js copies the UI into resources/
   services.cds                loads all UI annotations (common + both apps)
   common.cds                  field labels shared by both apps (annotated on the db entities)
