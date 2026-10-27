@@ -1,23 +1,85 @@
-<!-- Start page of the adopter app: three tiles that open the other pages -->
-<mvc:View controllerName="adopter.ext.home.Home"
+<!-- Start page of the adopter app: welcome banner, my applications at a glance, and the animals
+     that are available right now. The controller fills the "home" JSON model from the /user service. -->
+<mvc:View controllerName="animaladoption.adopter.ext.home.Home"
     xmlns:mvc="sap.ui.core.mvc"
-    xmlns="sap.m">
-    <Page title="Animal Adoption" class="sapUiContentPadding">
+    xmlns="sap.m"
+    xmlns:f="sap.f"
+    xmlns:card="sap.f.cards"
+    xmlns:grid="sap.ui.layout.cssgrid"
+    xmlns:core="sap.ui.core">
+    <Page showHeader="false" class="aaHome">
         <content>
-            <Title text="Welcome! Find a new friend." level="H2" class="sapUiSmallMarginBottom"/>
-            <HBox wrap="Wrap">
-                <GenericTile header="Browse Animals" subheader="Filter, look, apply" press=".onBrowse" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
-                    <TileContent><ImageContent src="sap-icon://heart"/></TileContent>
-                </GenericTile>
-                <GenericTile header="My Applications" subheader="Status, history, withdraw" press=".onApplications" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
-                    <TileContent><ImageContent src="sap-icon://document-text"/></TileContent>
-                </GenericTile>
-                <GenericTile header="My Profile" subheader="Register or edit" press=".onProfile" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
-                    <TileContent><ImageContent src="sap-icon://person-placeholder"/></TileContent>
-                </GenericTile>
-            </HBox>
-            <MessageStrip text="New here? Open My Profile and register first, then you can apply for an animal."
-                type="Information" showIcon="true" class="sapUiSmallMarginTop"/>
+            <VBox busy="{home>/busy}" busyIndicatorDelay="0">
+                <!-- welcome banner -->
+                <VBox class="aaHero">
+                    <Title text="{home>/greeting}" level="H1" wrapping="true" class="aaHeroTitle"/>
+                    <Text text="{i18n>heroText}" class="aaHeroText"/>
+                    <HBox wrap="Wrap" class="sapUiSmallMarginTop">
+                        <Button text="{i18n>browseAnimals}" icon="sap-icon://search" type="Emphasized" press=".onBrowse" class="sapUiTinyMarginEnd sapUiTinyMarginBottom"/>
+                        <Button text="{i18n>myApplications}" icon="sap-icon://document-text" press=".onApplications" class="sapUiTinyMarginEnd sapUiTinyMarginBottom"/>
+                        <Button text="{= ${home>/hasProfile} ? ${i18n>myProfile} : ${i18n>register} }" icon="sap-icon://person-placeholder"
+                            press=".onProfile" class="sapUiTinyMarginEnd sapUiTinyMarginBottom"/>
+                    </HBox>
+                </VBox>
+
+                <VBox class="aaSection">
+                    <!-- shown until the adopter has a profile: applying needs one -->
+                    <MessageStrip visible="{= !${home>/busy} &amp;&amp; !${home>/hasProfile} }" text="{i18n>registerHint}"
+                        type="Information" showIcon="true" class="sapUiSmallMarginBottom">
+                        <link>
+                            <Link text="{i18n>registerNow}" press=".onProfile"/>
+                        </link>
+                    </MessageStrip>
+
+                    <!-- my applications at a glance -->
+                    <f:Card visible="{= ${home>/applications}.length > 0 }" class="sapUiMediumMarginBottom">
+                        <f:header>
+                            <card:Header title="{i18n>myApplications}" subtitle="{i18n>myApplicationsSubtitle}"
+                                iconSrc="sap-icon://document-text" press=".onApplications"/>
+                        </f:header>
+                        <f:content>
+                            <List items="{home>/applications}" class="sapUiTinyMarginBottom">
+                                <StandardListItem title="{home>animalName}" description="{home>applicationID} · {i18n>appliedOn} {home>applicationDate}"
+                                    info="{home>status}" infoState="{home>state}" icon="{home>photo}" iconDensityAware="false"
+                                    type="Navigation" press=".onOpenApplication"/>
+                            </List>
+                        </f:content>
+                    </f:Card>
+
+                    <!-- available animals -->
+                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
+                        <Title text="{i18n>availableNow}" level="H2"/>
+                        <Link text="{i18n>seeAll}" press=".onBrowse"/>
+                    </HBox>
+                    <grid:CSSGrid items="{home>/animals}" gridTemplateColumns="repeat(auto-fill, minmax(14rem, 1fr))" gridGap="1rem">
+                        <grid:items>
+                            <f:Card class="aaPetCard">
+                                <f:content>
+                                    <VBox width="100%">
+                                        <Image src="{home>photo}" alt="{home>name}" densityAware="false" width="100%" height="12rem"
+                                            mode="Background" backgroundSize="cover" backgroundPosition="center" class="aaPetPhoto"
+                                            press=".onOpenAnimal"/>
+                                        <VBox class="aaPetBody">
+                                            <HBox justifyContent="SpaceBetween" alignItems="Center">
+                                                <Title text="{home>name}" level="H3"/>
+                                                <ObjectStatus text="{home>fee}" state="Information" inverted="true"/>
+                                            </HBox>
+                                            <Text text="{home>breed} · {home>gender} · {home>ageText}" class="aaMuted"/>
+                                            <HBox alignItems="Center" class="sapUiTinyMarginTop">
+                                                <core:Icon src="sap-icon://map" class="aaMuted sapUiTinyMarginEnd"/>
+                                                <Text text="{home>shelter}" class="aaMuted"/>
+                                            </HBox>
+                                            <Button text="{i18n>meet} {home>name}" width="100%" press=".onOpenAnimal" class="sapUiSmallMarginTop"/>
+                                        </VBox>
+                                    </VBox>
+                                </f:content>
+                            </f:Card>
+                        </grid:items>
+                    </grid:CSSGrid>
+                    <IllustratedMessage visible="{= !${home>/busy} &amp;&amp; ${home>/animals}.length === 0 }"
+                        illustrationType="sapIllus-NoSearchResults" title="{i18n>noAnimalsTitle}" description="{i18n>noAnimalsText}"/>
+                </VBox>
+            </VBox>
         </content>
     </Page>
 </mvc:View>

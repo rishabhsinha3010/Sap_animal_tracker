@@ -1,0 +1,48 @@
+/* Adopter app styles. Colours come from the SAP theme parameters, so light and dark themes both work. */
+
+.aaHome .sapMPageEnableScrolling {
+    background: var(--sapBackgroundColor);
+}
+
+/* welcome banner */
+.aaHero {
+    padding: 2.5rem 2rem 2rem;
+    background: linear-gradient(135deg, var(--sapBrandColor) 0%, var(--sapHighlightColor) 100%);
+}
+.aaHero .aaHeroTitle {
+    color: var(--sapContent_ContrastTextColor);
+    font-size: 2rem;
+}
+.aaHero .aaHeroText {
+    color: var(--sapContent_ContrastTextColor);
+    font-size: 1rem;
+    max-width: 40rem;
+    margin-top: 0.5rem;
+    opacity: 0.9;
+}
+
+.aaSection {
+    padding: 1.5rem 2rem 2rem;
+}
+@media (max-width: 600px) {
+    .aaHero { padding: 1.5rem 1rem; }
+    .aaSection { padding: 1rem; }
+}
+
+/* animal cards */
+.aaPetCard {
+    height: 100%;
+    overflow: hidden;
+}
+.aaPetCard .aaPetPhoto {
+    display: block;
+    cursor: pointer;
+    background-color: var(--sapNeutralBackgroundColor);
+}
+.aaPetCard .aaPetBody {
+    padding: 0.75rem 1rem 1rem;
+}
+
+.aaMuted {
+    color: var(--sapContent_LabelColor);
+}

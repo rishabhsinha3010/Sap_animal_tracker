@@ -93,16 +93,7 @@ service UserService @(
             history,
             documents,
             adoption,
-            // colour for the status, same numbers as on the admin side (3 green, 2 orange, 1 red, 0 grey)
-            case
-                when status = 'Approved'
-                     then 3
-                when status = 'Rejected'
-                     then 1
-                when status = 'Under Review'
-                     then 2
-                else 0
-            end as statusCriticality : Integer,
+            statusCriticality, // colour of the status (calculated in db/schema.cds)
             // the Withdraw button is only enabled while the application is still Submitted
             case
                 when status = 'Submitted'
@@ -159,6 +150,8 @@ service UserService @(
             adoptionStatus,
             adoptionFee,
             shelter,
+            healthCriticality,   // colours for the status fields (calculated in db/schema.cds)
+            adoptionCriticality,
             // health history shown on the animal page (the HealthRecords projection below decides which fields)
             healthRecords,
             // the Apply button is only enabled for an animal that is still Available
@@ -205,6 +198,7 @@ service UserService @(
             animal,
             checkupDate,
             healthStatus,
+            healthCriticality,
             healthSummary,
             adoptionEligible,
             nextCheckupDate
@@ -221,7 +215,7 @@ service UserService @(
     // (4 links: inspection -> adoption -> application -> applicant -> email)
     @restrict: [{ grant: 'READ', to: 'User', where: 'adoption.application.applicant.email = $user' }]
     entity Inspections as projection on db.Inspections {
-        ID, adoption, inspectionDate, inspectionType, result, remarks
+        ID, adoption, inspectionDate, inspectionType, result, resultCriticality, remarks
     };
 
     // Documents (agreements, certificates, letters) of my adoptions

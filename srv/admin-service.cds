@@ -25,17 +25,7 @@ service AdminService @(
     entity AdoptionApplications as
         projection on db.AdoptionApplications {
             *,
-            // colour code for the status in Fiori: 0 grey, 1 red, 2 orange, 3 green
-            // calculated when read, so it is never stored
-            case
-                when status = 'Approved'
-                     then 3
-                when status = 'Rejected'
-                     then 1
-                when status = 'Under Review'
-                     then 2
-                else 0
-            end as statusCriticality : Integer,
+            // (statusCriticality, the colour of the status, comes from db/schema.cds)
             // which review buttons make sense right now (used by Fiori to enable or grey them out)
             case
                 when status = 'Submitted'

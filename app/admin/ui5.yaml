@@ -1,7 +1,11 @@
 specVersion: "4.0" 
 metadata:
-  name: adminapplications
+  name: animaladoption.admin
 type: application
+# cds watch (cds-plugin-ui5) serves the app at http://localhost:4004/admin-app/index.html
+customConfiguration:
+  cds-plugin-ui5:
+    mountPath: /admin-app
 server:
   customMiddleware:
     - name: fiori-tools-proxy

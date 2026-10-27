@@ -1,9 +1,15 @@
 {
   "_version": "1.89.0",
   "sap.app": {
-    "id": "adopter",
+    "id": "animaladoption.adopter",
     "type": "application",
-    "i18n": "i18n/i18n.properties",
+    "i18n": {
+      "bundleUrl": "i18n/i18n.properties",
+      "supportedLocales": [
+        ""
+      ],
+      "fallbackLocale": ""
+    },
     "applicationVersion": {
       "version": "0.0.1"
     },
@@ -45,7 +51,8 @@
         "sap.m": {},
         "sap.ui.core": {},
         "sap.fe.templates": {},
-        "sap.f": {}
+        "sap.f": {},
+        "sap.ui.layout": {}
       }
     },
     "contentDensities": {
@@ -56,7 +63,11 @@
       "i18n": {
         "type": "sap.ui.model.resource.ResourceModel",
         "settings": {
-          "bundleName": "adopter.i18n.i18n"
+          "bundleName": "animaladoption.adopter.i18n.i18n",
+          "supportedLocales": [
+            ""
+          ],
+          "fallbackLocale": ""
         }
       },
       "": {
@@ -70,11 +81,21 @@
       },
       "@i18n": {
         "type": "sap.ui.model.resource.ResourceModel",
-        "uri": "i18n/i18n.properties"
+        "uri": "i18n/i18n.properties",
+        "settings": {
+          "supportedLocales": [
+            ""
+          ],
+          "fallbackLocale": ""
+        }
       }
     },
     "resources": {
-      "css": []
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
     },
     "routing": {
       "config": {},
@@ -117,7 +138,7 @@
           "name": "sap.fe.core.fpm",
           "options": {
             "settings": {
-              "viewName": "adopter.ext.home.Home",
+              "viewName": "animaladoption.adopter.ext.home.Home",
               "contextPath": "/Animals"
             }
           }
@@ -140,10 +161,12 @@
               "controlConfiguration": {
                 "@com.sap.vocabularies.UI.v1.LineItem": {
                   "tableSettings": {
-                    "type": "ResponsiveTable"
+                    "type": "ResponsiveTable",
+                    "growingThreshold": 20
                   }
                 }
-              }
+              },
+              "initialLoad": "Enabled"
             }
           }
         },
@@ -176,10 +199,12 @@
               "controlConfiguration": {
                 "@com.sap.vocabularies.UI.v1.LineItem": {
                   "tableSettings": {
-                    "type": "ResponsiveTable"
+                    "type": "ResponsiveTable",
+                    "growingThreshold": 20
                   }
                 }
-              }
+              },
+              "initialLoad": "Enabled"
             }
           }
         },

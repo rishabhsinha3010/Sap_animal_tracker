@@ -1,4 +1,5 @@
 {
+  "name": "animal-adoption-tracker",
   "dependencies": {
     "@cap-js/hana": "^3",
     "@sap/cds": "^10.1.1",
@@ -62,10 +63,14 @@
     "app/*"
   ],
   "scripts": {
-    "watch-admin-applications": "cds watch --open adminapplications/index.html?sap-ui-xx-viewCache=false --livereload false"
+    "start": "cds-serve",
+    "watch": "cds watch --open index.html",
+    "watch-admin": "cds watch --open admin-app/index.html?sap-ui-xx-viewCache=false",
+    "watch-adopter": "cds watch --open adopter-app/index.html?sap-ui-xx-viewCache=false",
+    "test:api": "bash test/api-test.sh"
   },
   "sapux": [
-    "app/admin-applications",
+    "app/admin",
     "app/adopter"
   ]
 }
