@@ -46,9 +46,18 @@
               "User"
             ]
           }
+        },
+        "[xsuaa]": {
+          "kind": "xsuaa"
+        },
+        "[production]": {
+          "kind": "xsuaa"
         }
       },
       "[hybrid]": {
+        "db": "hana"
+      },
+      "[production]": {
         "db": "hana"
       }
     }
@@ -60,14 +69,18 @@
     "cloudinary": "^2.11.0"
   },
   "workspaces": [
-    "app/*"
+    "app/admin",
+    "app/adopter"
   ],
   "scripts": {
     "start": "cds-serve",
     "watch": "cds watch --open index.html",
     "watch-admin": "cds watch --open admin-app/index.html?sap-ui-xx-viewCache=false",
     "watch-adopter": "cds watch --open adopter-app/index.html?sap-ui-xx-viewCache=false",
-    "test:api": "bash test/api-test.sh"
+    "test:api": "bash test/api-test.sh",
+    "build:mta": "mbt build",
+    "router:build": "npm run build --prefix app/router",
+    "router:hybrid": "npm install --prefix app/router && npm run router:build && cds bind --exec --profile hybrid -- node app/router/start-local.js"
   },
   "sapux": [
     "app/admin",

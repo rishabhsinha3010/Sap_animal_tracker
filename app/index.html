@@ -69,6 +69,7 @@
         }
         code { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1px 6px; font-size: 13px; }
         footer { text-align: center; color: var(--muted); font-size: 13px; padding: 24px 16px; }
+        footer a { color: var(--brand); }
     </style>
 </head>
 <body>
@@ -104,14 +105,23 @@
             </a>
         </div>
 
-        <!-- local test logins (mocked auth in package.json) -->
-        <div class="logins">
+        <!-- local test logins (mocked auth in package.json): only shown with `cds watch` (port 4004) -->
+        <div class="logins" id="localLogins" hidden>
             <strong>Local test logins</strong><br>
             Admin: <code>admin / admin</code> ·
             Adopter: <code>asha@example.com / user</code> ·
             New adopter (no profile yet): <code>other@example.com / user</code>
         </div>
     </main>
-    <footer>SAP CAP · Fiori elements · OData V4</footer>
+    <footer>
+        SAP CAP · Fiori elements · OData V4
+        <!-- behind the app router (XSUAA login): /do/logout ends the session (xs-app.json) -->
+        <span id="signOut" hidden> · <a href="do/logout">Sign out</a></span>
+    </footer>
+    <script>
+        // cds watch serves this page on port 4004 (mocked logins); everywhere else the app router does (XSUAA)
+        const local = location.port === "4004" || location.hostname.startsWith("port4004-");
+        document.getElementById(local ? "localLogins" : "signOut").hidden = false;
+    </script>
 </body>
 </html>
