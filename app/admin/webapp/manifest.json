@@ -251,7 +251,8 @@
           "options": {
             "settings": {
               "editableHeaderContent": false,
-              "contextPath": "/Animals"
+              "contextPath": "/Animals",
+              "enhanceI18n": "i18n/new-animals.properties"
             }
           }
         },
@@ -289,7 +290,8 @@
           "options": {
             "settings": {
               "editableHeaderContent": false,
-              "contextPath": "/Shelters"
+              "contextPath": "/Shelters",
+              "enhanceI18n": "i18n/new-shelters.properties"
             }
           }
         },
@@ -327,7 +329,8 @@
           "options": {
             "settings": {
               "editableHeaderContent": false,
-              "contextPath": "/HealthRecords"
+              "contextPath": "/HealthRecords",
+              "enhanceI18n": "i18n/new-healthrecords.properties"
             }
           }
         },
@@ -365,7 +368,8 @@
           "options": {
             "settings": {
               "editableHeaderContent": false,
-              "contextPath": "/Inspections"
+              "contextPath": "/Inspections",
+              "enhanceI18n": "i18n/new-inspections.properties"
             }
           }
         },

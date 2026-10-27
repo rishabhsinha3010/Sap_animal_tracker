@@ -127,3 +127,22 @@ annotate service.AdoptionApplications with {
         Common.TextArrangement: #TextOnly
     );
 };
+
+// after Start Review / Approve / Reject the page reloads what the action changed
+// (the actions return nothing, so without this the old status and buttons would stay on screen)
+annotate service.AdoptionApplications actions {
+    startReview @Common.SideEffects: {
+        TargetProperties: ['in/status', 'in/statusCriticality', 'in/canStartReview', 'in/canDecide', 'in/reviewedBy', 'in/reviewedAt'],
+        TargetEntities  : ['in/history']
+    };
+    approve @Common.SideEffects: {
+        TargetProperties: ['in/status', 'in/statusCriticality', 'in/canStartReview', 'in/canDecide', 'in/reviewedBy', 'in/reviewedAt',
+                           'in/staffRemarks', 'in/animal/adoptionStatus'],
+        TargetEntities  : ['in/history']
+    };
+    rejectApplication @Common.SideEffects: {
+        TargetProperties: ['in/status', 'in/statusCriticality', 'in/canStartReview', 'in/canDecide', 'in/reviewedBy', 'in/reviewedAt',
+                           'in/rejectionReason'],
+        TargetEntities  : ['in/history']
+    };
+};

@@ -66,3 +66,10 @@ annotate service.HealthRecords with {
         }
     );
 };
+
+// Mark Recovered changes the record (and the animal): reload it on the page
+annotate service.HealthRecords actions {
+    markRecovered @Common.SideEffects: {
+        TargetProperties: ['in/healthStatus', 'in/healthCriticality', 'in/adoptionEligible', 'in/nextCheckupDate', 'in/remarks']
+    };
+};

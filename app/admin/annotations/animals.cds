@@ -7,7 +7,7 @@ annotate service.Animals with @(
         TypeNamePlural: 'Animals',
         Title         : {Value: name},
         Description   : {Value: breed},
-        ImageUrl      : photo,   // the photo (Cloudinary URL) shows in the header
+        ImageUrl      : photoUrl,   // uploaded picture or photo link (db/schema.cds) shows in the header
         TypeImageUrl  : 'sap-icon://heart'
     },
     UI.SelectionFields: [species, adoptionStatus, healthStatus, shelter_ID],
@@ -16,7 +16,7 @@ annotate service.Animals with @(
         Visualizations: ['@UI.LineItem']
     },
     UI.LineItem: [
-        {Value: photo, ![@HTML5.CssDefaults]: {width: '5rem'}},
+        {Value: photoUrl, ![@HTML5.CssDefaults]: {width: '5rem'}},
         {Value: animalID, Label: 'ID', ![@HTML5.CssDefaults]: {width: '6rem'}},
         {Value: name, ![@HTML5.CssDefaults]: {width: '9rem'}},
         {Value: species, ![@HTML5.CssDefaults]: {width: '7rem'}},
@@ -36,13 +36,18 @@ annotate service.Animals with @(
     UI.DataPoint #Fee     : {Value: adoptionFee,    Title: 'Adoption Fee'},
     UI.Facets: [
         {$Type: 'UI.ReferenceFacet', ID: 'Details', Label: 'Details',             Target: '@UI.FieldGroup#Details'},
+        {$Type: 'UI.ReferenceFacet', ID: 'Photo',   Label: 'Photo',               Target: '@UI.FieldGroup#Photo'},
         {$Type: 'UI.ReferenceFacet', ID: 'Status',  Label: 'Health and Adoption', Target: '@UI.FieldGroup#Status'},
         {$Type: 'UI.ReferenceFacet', ID: 'Health',  Label: 'Health Records',      Target: 'healthRecords/@UI.LineItem'}
     ],
     UI.FieldGroup #Details: {Data: [
         {Value: animalID}, {Value: name}, {Value: species}, {Value: breed}, {Value: gender},
         {Value: age}, {Value: color}, {Value: arrivalDate}, {Value: shelter_ID},
-        {Value: photo}, {Value: description}
+        {Value: description}
+    ]},
+    // upload a picture, or paste a link (an uploaded picture wins); after Save it shows in the page header
+    UI.FieldGroup #Photo: {Data: [
+        {Value: image}, {Value: photo}
     ]},
     UI.FieldGroup #Status: {Data: [
         {Value: healthStatus, Criticality: healthCriticality}, {Value: vaccinationStatus}, {Value: adoptionEligible},
