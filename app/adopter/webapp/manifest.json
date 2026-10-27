@@ -226,7 +226,8 @@
           "options": {
             "settings": {
               "editableHeaderContent": false,
-              "contextPath": "/Users"
+              "contextPath": "/Users",
+              "enhanceI18n": "i18n/profile.properties"
             }
           }
         }

@@ -89,6 +89,7 @@ app/                          UI (Fiori elements apps)
   router/                     app router (XSUAA login); xs-app.json = routes, build.js copies the UI into resources/
   services.cds                loads all UI annotations (common + both apps)
   common.cds                  field labels shared by both apps (annotated on the db entities)
+  shared/                     top bar of both apps (AppShell.js: logo, title, account menu with My Profile / Sign out)
   admin/                      ADMIN app  -> AdminService (/admin), served at /admin-app
     annotations/              one file per business object
       index.cds               entry point (imports the files below)
